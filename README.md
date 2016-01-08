@@ -1,5 +1,8 @@
 ByContract
 ==============
+[![NPM](https://nodei.co/npm/bycontract.png)](https://nodei.co/npm/bycontract/)
+[![Build Status](https://travis-ci.org/dsheiko/bycontract.png)](https://travis-ci.org/dsheiko/bycontract)
+[![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 `byContract` is a small validation library (1,1 KB gzip) that allows you to benefit from [Design by Contract programming](https://en.wikipedia.org/wiki/Design_by_contract)
 in your JavaScript code. The lib uses [JsDoc](http://usejsdoc.org/tags-type.html) expressions as a contract. Therefore you
@@ -151,3 +154,6 @@ byContract.is.email = function( val ){
 byContract( "me@dsheiko.com", "email" ); // ok
 byContract( "bla-bla", "email" ); // Exception!
 ```
+
+
+[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](http://githalytics.com/dsheiko/bycontract)
