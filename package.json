@@ -1,0 +1,39 @@
+{
+  "name": "bycontract",
+  "description": "Design by Contract",
+  "version": "0.0.1",
+  "author": "Dmitry Sheiko <me@dsheiko.com>",
+  "main": "byContract.js",
+  "keywords": [
+    "validation",
+    "design by contract",
+    "contract",
+    "interface",
+    "javascript"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "grunt-contrib-uglify": "^0.11.0",
+    "grunt-mocha-cli": "^2.0.0",
+    "grunt-mocha-phantomjs": "^2.0.1",
+    "mocha": "^2.3.4"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/fawek/codepainter/raw/master/LICENSE"
+    }
+  ],
+  "maintainers": [
+    {
+      "name": "Dmitry Sheiko",
+      "email": "me@dsheiko.com",
+      "web": "http://dsheiko.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dsheiko/bycontract"
+  }
+}
