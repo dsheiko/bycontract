@@ -64,7 +64,7 @@ byContract( true, "string|number|boolean" ); // ok
 byContract( [], "string|number|boolean" ); // Exception!
 ```
 
-### Options Parameter
+### Optional Parameters
 ```javascript
 function foo( bar, baz ) {
   byContract( arguments, [ "number=", "string=" ] );
