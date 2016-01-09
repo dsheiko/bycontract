@@ -5,7 +5,7 @@ ByContract
 [![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 `byContract` is a small validation library (1,1 KB gzip) that allows you to benefit from [Design by Contract programming](https://en.wikipedia.org/wiki/Design_by_contract)
-in your JavaScript code. The lib uses [JsDoc expressions](http://usejsdoc.org/tags-type.html) as a contract. Therefore you
+in your JavaScript code. The lib uses [JSDoc expression](http://usejsdoc.org/tags-type.html) for a contract. Therefore you
 likely already familiar with the syntax. The library is implemented as a UMD-compatible module, so you can use as CommonJs and AMD.
 Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
