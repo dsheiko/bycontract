@@ -157,11 +157,30 @@ byContract( null, "!number" ); // Exception!
 try {
   byContract( 1, "NaN" );
 } catch( err ) {
-  console.log( err instanceof Error );
-  console.log( err instanceof TypeError );
-  console.log( err instanceof byContract.Exception );
+  console.log( err instanceof Error ); // true
+  console.log( err instanceof TypeError ); // true
+  console.log( err instanceof byContract.Exception ); // true
+  console.log( err.name ); // ByContractError
+  console.log( err.message ); // Value violates the contract `NaN`
 }
 ```
+
+##### Output in NodeJS
+```
+function bar(){
+  byContract( 1, "NaN" );
+}
+function foo() {
+  bar();
+}
+
+ByContractError
+    at bar (/private/tmp/demo.js:6:3)
+    at foo (/private/tmp/demo.js:9:3)
+    at Object.<anonymous> (/private/tmp/demo.js:12:1)
+    ..
+```
+
 
 ## Custom Validators
 
