@@ -10,19 +10,24 @@ likely already familiar with the syntax. The library is implemented as a UMD-com
 Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
 
-##### Test value against contract
+##### Test value against a contract
 ```javascript
-byContract( value, "JSDOC-EXPRESSION" );
+byContract( value, "JSDOC-EXPRESSION" ); // ok or exception
 ```
 
-##### Test set of values against contract list
+##### Test set of values against a contract list
 ```javascript
-byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );
+byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
 // e.g.
-byContract( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );
+byContract( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
 ```
 
-##### Usage example
+##### Validate value against a contract
+```javascript
+byContract.validate( value, "JSDOC-EXPRESSION" );  // true or false
+```
+
+##### Usage example: ensure the contract
 
 ```javascript
 /**
@@ -43,6 +48,22 @@ function foo( sum, payload, cb ) {
 foo( 100, { foo: "foo" }, function(){}); // ok
 foo( 100, { foo: 100 }, function(){}); // exception - ByContractError: Value of index 1 violates the contract `Object.<string, string>`
 ```
+
+##### Usage example: validate the value
+```javascript
+class MyModel extends Backbone.Model {
+  validate( attrs ) {
+    var errors = [];
+    if ( !byContract.validate( attrs.id, "!number" ) ) {
+      errors.push({ name: "id", message: "Id must be a number" });
+    }
+    return errors.length > 0 ? errors : false;
+  }
+}
+
+```
+
+
 
 ## Contract Expressions
 

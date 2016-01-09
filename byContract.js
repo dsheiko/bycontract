@@ -193,6 +193,7 @@ define(function() {
 
   byContract.Exception.prototype = new TypeError();
   byContract.is = is;
+  byContract.validate = validate;
 
   if ( typeof window !== "undefined" ) {
     window.byContract = byContract;
