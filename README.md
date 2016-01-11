@@ -198,4 +198,4 @@ byContract( "bla-bla", "email" ); // Exception!
 ```
 
 
-[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](http://githalytics.com/dsheiko/bycontract)
+[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
