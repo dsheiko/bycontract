@@ -10,12 +10,12 @@ likely already familiar with the syntax. The library is implemented as a UMD-com
 Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
 
-##### Test value against contract
+##### Test value against a contract
 ```javascript
 byContract( value, "JSDOC-EXPRESSION" );
 ```
 
-##### Test set of values against contract list
+##### Test set of values against a contract list
 ```javascript
 byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );
 // e.g.
