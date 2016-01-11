@@ -5,24 +5,29 @@ ByContract
 [![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 `byContract` is a small validation library (1,1 KB gzip) that allows you to benefit from [Design by Contract programming](https://en.wikipedia.org/wiki/Design_by_contract)
-in your JavaScript code. The lib uses [JsDoc expressions](http://usejsdoc.org/tags-type.html) as a contract. Therefore you
+in your JavaScript code. The lib uses [JSDoc expression](http://usejsdoc.org/tags-type.html) for a contract. Therefore you
 likely already familiar with the syntax. The library is implemented as a UMD-compatible module, so you can use as CommonJs and AMD.
 Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
 
 ##### Test value against a contract
 ```javascript
-byContract( value, "JSDOC-EXPRESSION" );
+byContract( value, "JSDOC-EXPRESSION" ); // ok or exception
 ```
 
 ##### Test set of values against a contract list
 ```javascript
-byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );
+byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
 // e.g.
-byContract( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );
+byContract( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
 ```
 
-##### Usage example
+##### Validate value against a contract
+```javascript
+byContract.validate( value, "JSDOC-EXPRESSION" );  // true or false
+```
+
+##### Usage example: ensure the contract
 
 ```javascript
 /**
@@ -43,6 +48,22 @@ function foo( sum, payload, cb ) {
 foo( 100, { foo: "foo" }, function(){}); // ok
 foo( 100, { foo: 100 }, function(){}); // exception - ByContractError: Value of index 1 violates the contract `Object.<string, string>`
 ```
+
+##### Usage example: validate the value
+```javascript
+class MyModel extends Backbone.Model {
+  validate( attrs ) {
+    var errors = [];
+    if ( !byContract.validate( attrs.id, "!number" ) ) {
+      errors.push({ name: "id", message: "Id must be a number" });
+    }
+    return errors.length > 0 ? errors : false;
+  }
+}
+
+```
+
+
 
 ## Contract Expressions
 
@@ -136,11 +157,30 @@ byContract( null, "!number" ); // Exception!
 try {
   byContract( 1, "NaN" );
 } catch( err ) {
-  console.log( err instanceof Error );
-  console.log( err instanceof TypeError );
-  console.log( err instanceof byContract.Exception );
+  console.log( err instanceof Error ); // true
+  console.log( err instanceof TypeError ); // true
+  console.log( err instanceof byContract.Exception ); // true
+  console.log( err.name ); // ByContractError
+  console.log( err.message ); // Value violates the contract `NaN`
 }
 ```
+
+##### Output in NodeJS
+```
+function bar(){
+  byContract( 1, "NaN" );
+}
+function foo() {
+  bar();
+}
+
+ByContractError
+    at bar (/private/tmp/demo.js:6:3)
+    at foo (/private/tmp/demo.js:9:3)
+    at Object.<anonymous> (/private/tmp/demo.js:12:1)
+    ..
+```
+
 
 ## Custom Validators
 
