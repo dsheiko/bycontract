@@ -174,6 +174,8 @@ function foo() {
   bar();
 }
 
+foo();
+
 ByContractError
     at bar (/private/tmp/demo.js:6:3)
     at foo (/private/tmp/demo.js:9:3)
