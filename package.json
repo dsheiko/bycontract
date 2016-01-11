@@ -1,7 +1,7 @@
 {
   "name": "bycontract",
   "description": "Design by Contract",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "byContract.js",
   "keywords": [

@@ -64,7 +64,6 @@ class MyModel extends Backbone.Model {
 ```
 
 
-
 ## Contract Expressions
 
 ### Basic Types
@@ -197,5 +196,12 @@ byContract( "me@dsheiko.com", "email" ); // ok
 byContract( "bla-bla", "email" ); // Exception!
 ```
 
+## Disable Validation on Production Environment
+
+```javascript
+if ( env === "production" ) {
+  byContract.isEnabled = false;
+}
+```
 
 [![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)

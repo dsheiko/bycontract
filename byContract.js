@@ -16,6 +16,7 @@ if ( typeof define === "undefined" ) {
 define(function() {
   "use strict";
   var scope = ( typeof window !== "undefined" ? window : global ),
+  isEnabled = true,
   toString = Object.prototype.toString,
   // Inspired by https://github.com/arasatasaygin/is.js/blob/master/is.js
   is = {
@@ -61,7 +62,10 @@ define(function() {
    */
   validate = function( val, contract ){
     var test, match;
-
+    // Disabled on production, ignore
+    if ( !isEnabled ) {
+      return true;
+    }
     // Case: byContract( val, MyClass );
     if ( is.function( contract ) ) {
       return val instanceof contract;
@@ -137,6 +141,10 @@ define(function() {
    * @param {Array} contracts
    */
 	byContract = function( values, contracts ){
+    // Disabled on production, ignore
+    if ( !isEnabled ) {
+      return values;
+    }
     if ( typeof contracts === "undefined" ) {
       throw new byContract.Exception( "Invalid parameters. The second parameter (contracts) is missing" );
     }
@@ -194,6 +202,7 @@ define(function() {
   byContract.Exception.prototype = new TypeError();
   byContract.is = is;
   byContract.validate = validate;
+  byContract.isEnabled = isEnabled;
 
   if ( typeof window !== "undefined" ) {
     window.byContract = byContract;
