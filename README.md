@@ -205,3 +205,6 @@ if ( env === "production" ) {
 ```
 
 [![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/dsheiko/bycontract/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
