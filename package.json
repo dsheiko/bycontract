@@ -1,9 +1,15 @@
 {
   "name": "bycontract",
   "description": "Design by Contract",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "byContract.js",
+  "typings": "./index.d.ts",
+
+  "scripts": {
+    "test": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html"
+  },
+
   "keywords": [
     "validation",
     "design by contract",
@@ -14,12 +20,14 @@
   "dependencies": {},
   "devDependencies": {
     "chai": "^3.3.0",
+    "es6-shim": "^0.35.1",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-uglify": "^0.11.0",
     "grunt-mocha-cli": "^2.0.0",
     "grunt-mocha-phantomjs": "^2.0.1",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "systemjs": "^0.19.36"
   },
   "licenses": [
     {

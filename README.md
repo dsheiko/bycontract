@@ -9,6 +9,16 @@ in your JavaScript code. The lib uses [JSDoc expression](http://usejsdoc.org/tag
 likely already familiar with the syntax. The library is implemented as a UMD-compatible module, so you can use as CommonJs and AMD.
 Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
+* [Getting Started](#Getting-Started)
+* [Contract Expressions](#Contract-Expressions)
+* [Custom Validators](#Custom-Validators)
+* [Disable Validation on Production Environment](#Disable-Validation)
+* [Using as TypeScript Module](#TypeScript-Module)
+* [Using @Input/@Output Decorators](#Contract-Decorator)
+
+
+<a id="Getting-Started"></a>
+## Getting Started
 
 ##### Test value against a contract
 ```javascript
@@ -63,7 +73,7 @@ class MyModel extends Backbone.Model {
 
 ```
 
-
+<a id="Contract-Expressions"></a>
 ## Contract Expressions
 
 ### Basic Types
@@ -182,7 +192,7 @@ ByContractError
     ..
 ```
 
-
+<a id="Custom-Validators"></a>
 ## Custom Validators
 
 Basic type validators exposed publicly in `byContract.is` namespace. so you can extend it:
@@ -196,6 +206,7 @@ byContract( "me@dsheiko.com", "email" ); // ok
 byContract( "bla-bla", "email" ); // Exception!
 ```
 
+<a id="Disable-Validation"></a>
 ## Disable Validation on Production Environment
 
 ```javascript
@@ -204,7 +215,46 @@ if ( env === "production" ) {
 }
 ```
 
-[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
+<a id="TypeScript-Module"></a>
+## Using as TypeScript Module
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/dsheiko/bycontract/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+```javascript
+import { byContract, Exception } from "byContract";
+try {
+  byContract( null, "string" );
+} catch( err ){
+  console.log( err instanceof Exception ); // true
+}
+```
+
+<a id="Contract-Decorator"></a>
+## Using @Input/@Output Decorators
+
+```javascript
+import { Input, Output, Exception } from "byContract";
+
+class Foo {
+  // static method entry point validation
+  @Input([ "String", HTMLElement ])
+  static bar( key:string, node:HTMLElement ){}
+
+  // dynamic method entry point validation
+  @Input([ "Object.<string, string>", "string|number|boolean" ])
+  baz( map:DataMap, mixed:string|number|boolean ){}
+
+  // both entry point and exit point validation
+  @Input([ "Number" ])
+  @Output( "String" )
+  quiz( key:string ){ return String(key); }
+}
+
+```
+You can alias the imported modules:
+
+```javascript
+import { Input as validateEntry, Output as validateExit, Exception as ContractException } from "byContract";
+```
+
+
+[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
 

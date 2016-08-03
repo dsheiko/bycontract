@@ -204,6 +204,8 @@ define(function() {
   byContract.validate = validate;
   byContract.isEnabled = isEnabled;
 
+  byContract.default = byContract;
+
   if ( typeof window !== "undefined" ) {
     window.byContract = byContract;
   }

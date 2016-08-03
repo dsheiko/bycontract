@@ -25,7 +25,7 @@ module.exports = function( grunt ) {
         },
         build: {
           files: {
-            "dest/byContract.min.js": [ "byContract.js" ]
+            "dist/byContract.min.js": [ "byContract.js" ]
           }
         }
       }
