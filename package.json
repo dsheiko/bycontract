@@ -7,7 +7,7 @@
   "typings": "./index.d.ts",
 
   "scripts": {
-    "test": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html"
+    "test:ts": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html"
   },
 
   "keywords": [
