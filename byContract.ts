@@ -199,9 +199,8 @@ export function byContract( values:any, contracts:any ){
 export function Input( contracts:any[] ) {
 
   return function( target:Object|Function, propKey:string, descriptor:PropertyDescriptor ):PropertyDescriptor{
-    const callback = descriptor.value,
-          context = ( typeof target === "function" ) ? null : target;
-          
+    const callback = descriptor.value;
+
     if ( !isEnabled ) {
       return descriptor;
     }
@@ -209,7 +208,7 @@ export function Input( contracts:any[] ) {
       value: function() {
         const args = Array.from( arguments );
         byContract( args, contracts );
-        return callback.apply( context, args );
+        return callback.apply( this, args );
       }
     });
   };
@@ -217,8 +216,7 @@ export function Input( contracts:any[] ) {
 
 export function Output( contract:any ) {
   return function( target:Object|Function, propKey:string, descriptor:PropertyDescriptor ):PropertyDescriptor{
-    const callback = descriptor.value,
-          context = ( typeof target === "function" ) ? null : target;
+    const callback = descriptor.value;
 
     if ( !isEnabled ) {
       return descriptor;
@@ -226,7 +224,7 @@ export function Output( contract:any ) {
     return <PropertyDescriptor>Object.assign( {}, descriptor, {
       value: function() {
         const args = Array.from( arguments );
-        let retVal = callback.apply( context, args );
+        let retVal = callback.apply( this, args );
         byContract( retVal, contract );
         return retVal;
       }

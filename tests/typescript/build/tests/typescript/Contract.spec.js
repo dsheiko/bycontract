@@ -194,6 +194,7 @@ describe("@Input", function () {
         it("doesn't lose the context", function () {
             var Fixture = (function () {
                 function Fixture() {
+                    this.quiz = "quiz";
                 }
                 Fixture.prototype.baz = function () { return "baz"; };
                 Fixture.prototype.test = function (arg) { return this.baz(); };
@@ -205,7 +206,9 @@ describe("@Input", function () {
                 ], Fixture.prototype, "test", null);
                 return Fixture;
             }());
-            expect((new Fixture()).test("string")).to.eql("baz");
+            var fix = new Fixture();
+            expect(fix.test("string")).to.eql("baz");
+            expect(fix.quiz).to.eql("quiz");
         });
     });
 });

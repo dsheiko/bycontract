@@ -162,11 +162,14 @@ describe( "@Input", function(){
     });
     it( "doesn't lose the context", function() {
       class Fixture {
+        quiz = "quiz";
         baz(){ return "baz"; }
         @Input(["String"])
         test( arg:any ){ return this.baz(); }
       }
-      expect( ( new Fixture() ).test( "string" ) ).to.eql( "baz" );
+      let fix = new Fixture();
+      expect( fix.test( "string" ) ).to.eql( "baz" );
+      expect( fix.quiz ).to.eql( "quiz" );
     });
   });
 });

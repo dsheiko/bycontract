@@ -184,7 +184,7 @@ var Exception = (function (_super) {
 exports.Exception = Exception;
 function Input(contracts) {
     return function (target, propKey, descriptor) {
-        var callback = descriptor.value, context = (typeof target === "function") ? null : target;
+        var callback = descriptor.value;
         if (!exports.isEnabled) {
             return descriptor;
         }
@@ -192,7 +192,7 @@ function Input(contracts) {
             value: function () {
                 var args = Array.from(arguments);
                 byContract(args, contracts);
-                return callback.apply(context, args);
+                return callback.apply(this, args);
             }
         });
     };
@@ -200,14 +200,14 @@ function Input(contracts) {
 exports.Input = Input;
 function Output(contract) {
     return function (target, propKey, descriptor) {
-        var callback = descriptor.value, context = (typeof target === "function") ? null : target;
+        var callback = descriptor.value;
         if (!exports.isEnabled) {
             return descriptor;
         }
         return Object.assign({}, descriptor, {
             value: function () {
                 var args = Array.from(arguments);
-                var retVal = callback.apply(context, args);
+                var retVal = callback.apply(this, args);
                 byContract(retVal, contract);
                 return retVal;
             }
