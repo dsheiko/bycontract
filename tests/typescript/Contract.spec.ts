@@ -1,4 +1,4 @@
-import { Input, Output, byContract, Exception } from "../../byContract";
+import { Input, Output, byContract, Exception } from "../../ts/byContract";
 const expect = chai.expect;
 
 describe( "Basic Type Validation", function(){

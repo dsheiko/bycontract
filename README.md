@@ -11,10 +11,9 @@ Besides, it exposes `byContract` function globally when `window` object availabl
 
 * [Getting Started](#Getting-Started)
 * [Contract Expressions](#Contract-Expressions)
+* [Custom Types](#Custom-Types)
 * [Custom Validators](#Custom-Validators)
 * [Disable Validation on Production Environment](#Disable-Validation)
-* [Using as TypeScript Module](#TypeScript-Module)
-* [Using @Input/@Output Decorators](#Contract-Decorator)
 
 
 <a id="Getting-Started"></a>
@@ -192,6 +191,50 @@ ByContractError
     ..
 ```
 
+<a id="Custom-Types"></a>
+## Custom Types
+
+Pretty much like with [JSDoc @typedef](http://usejsdoc.org/tags-typedef.html) one can declare a custom type and use it as a contract.
+
+### Validating against a Union Type
+Here we define a union type for values that can contain either numbers or strings that represent numbers.
+```javascript
+byContract.typedef( "NumberLike", "number|string" );
+byContract( 10, "NumberLike" ); // OK
+byContract( null, "NumberLike" ); // throws Value incorrectly implements interface `NumberLike`
+```
+
+### Validating against a Complex Type
+This example defines a type `Hero` that represents an object/namespace required to have properties `hasSuperhumanStrength` and `hasWaterbreathing` both of boolean type.
+```javascript
+byContract.typedef( "Hero", {
+  hasSuperhumanStrength: "boolean",
+  hasWaterbreathing: "boolean"
+});
+var superman = {
+  hasSuperhumanStrength: true,
+  hasWaterbreathing: false
+};
+byContract( superman, "Hero" ); // OK
+```
+
+When any of properties violates the specified contract an exception thrown
+```javascript
+var superman = {
+  hasSuperhumanStrength: 42,
+  hasWaterbreathing: null
+};
+byContract( superman, "Hero" ); // throws Value incorrectly implements interface `Hero`
+```
+
+If value mises a property of the complex type an exception thrown
+```javascript
+var auqaman = {
+  hasWaterbreathing: true
+};
+byContract( superman, "Hero" ); // throws Value incorrectly implements interface `Hero`
+```
+
 <a id="Custom-Validators"></a>
 ## Custom Validators
 
@@ -213,46 +256,6 @@ byContract( "bla-bla", "email" ); // Exception!
 if ( env === "production" ) {
   byContract.isEnabled = false;
 }
-```
-
-<a id="TypeScript-Module"></a>
-## Using as TypeScript Module
-
-```javascript
-import { byContract, Exception } from "byContract";
-try {
-  byContract( null, "string" );
-} catch( err ){
-  console.log( err instanceof Exception ); // true
-}
-```
-
-<a id="Contract-Decorator"></a>
-## Using @Input/@Output Decorators
-
-```javascript
-import { Input, Output, Exception } from "byContract";
-
-class Foo {
-  // static method entry point validation
-  @Input([ "String", HTMLElement ])
-  static bar( key:string, node:HTMLElement ){}
-
-  // dynamic method entry point validation
-  @Input([ "Object.<string, string>", "string|number|boolean" ])
-  baz( map:DataMap, mixed:string|number|boolean ){}
-
-  // both entry point and exit point validation
-  @Input([ "Number" ])
-  @Output( "String" )
-  quiz( key:string ){ return String(key); }
-}
-
-```
-You can alias the imported modules:
-
-```javascript
-import { Input as validateEntry, Output as validateExit, Exception as ContractException } from "byContract";
 ```
 
 

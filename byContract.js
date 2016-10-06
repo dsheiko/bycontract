@@ -18,7 +18,15 @@ define(function() {
   var scope = ( typeof window !== "undefined" ? window : global ),
   isEnabled = true,
   toString = Object.prototype.toString,
-  // Inspired by https://github.com/arasatasaygin/is.js/blob/master/is.js
+  /**
+   * @type Object.<string, Object>
+   */
+  customTypes = {},
+
+  /**
+   * Inspired by https://github.com/arasatasaygin/is.js/blob/master/is.js
+   * @namespace
+   */
   is = {
     arguments: function( value ) {
       return toString.call( value ) === '[object Arguments]';
@@ -55,6 +63,8 @@ define(function() {
         return toString.call( value ) === "[object RegExp]";
     }
   },
+
+
 
   /**
    * @param {*} val
@@ -132,8 +142,64 @@ define(function() {
     if ( !contract.match( /^[a-zA-Z0-9\._]+$/ ) ) {
       throw new byContract.Exception( "Invalid contract `" + contract + "`" );
     }
+    if ( typeof scope[ contract ] !== "function" ) {
+      throw new byContract.Exception( "Invalid contract `" + contract + "`" );
+    }
     // Case: byContract( val, "Backbone.Model" );
     return val instanceof scope[ contract ];
+  },
+  /**
+   * Compare two arrays
+   * @param {string[]} first
+   * @param {string[]} second
+   * @returns {boolean}
+   */
+  areArraysEqual = function( first, second ){
+    return JSON.stringify( first.sort() ) === JSON.stringify( second.sort() );
+  },
+
+  /**
+   * Validate a custom type declared by @typedef
+   * @param {*} value
+   * @param {string|Object.<string, string>} tagDic
+   */
+  validateCustomType = function( value, tagDic ){
+    if ( is.string( tagDic ) ) {
+      return validate( value, tagDic );
+    }
+    if ( !areArraysEqual( Object.keys( value ), Object.keys( tagDic ) ) ){
+      return false;
+    }
+    return Object.keys( value ).every(function( key ){
+      if ( !( key in tagDic ) ){
+         return false;
+      }
+      return validate( value[ key ], tagDic[ key ] );
+    });
+  },
+
+  /**
+   * Test a value against a contract
+   * @param {*} val
+   * @param {*} contract
+   * @parma {number} [inx]
+   * @returns void
+   */
+  testValue = function( val, contract, inx ){
+    var exExtra = typeof inx !== "undefined" ? "of index " + inx: "";
+    // first check for a custom type
+    if ( contract in customTypes ) {
+      if ( !validateCustomType( val, customTypes[ contract ] ) ) {
+        throw new byContract.Exception( "Value " + exExtra +
+          "incorrectly implements interface `" + contract + "`" );
+      }
+      return;
+    }
+    // check a contract
+    if ( !validate( val, contract ) ) {
+      throw new byContract.Exception( "Value " + exExtra +
+        "violates the contract `" + contract + "`" );
+    }
   },
 
   /**
@@ -158,17 +224,12 @@ define(function() {
       }
       contracts.forEach(function( contract, inx  ){
         var val = values[ inx ];
-        if ( !validate( val, contract ) ) {
-          throw new byContract.Exception( "Value of index " + inx +
-            " violates the contract `" + contract + "`" );
-        }
+        testValue( val, contract );
       });
       return values;
     }
     // Test a single value against contract
-    if ( !validate( values, contracts ) ) {
-      throw new byContract.Exception( "Value violates the contract `" + contracts + "`" );
-    }
+    testValue( values, contracts );
     return values;
   },
   /**
@@ -190,11 +251,18 @@ define(function() {
     return ( header === "TypeError" ? "ByContractError\n" : "" ) + lines.join( "\n" );
   };
 
-  byContract.typedef = function( typeName, spec ){
-    is.object( spec );
-    Object.keys( spec ).forEach(function( key ){
 
-    });
+  /**
+   * Document a custom type
+   * @param {string} typeName
+   * @param {string|Object.<string, string>} tagDic
+   */
+  byContract.typedef = function( typeName, tagDic ){
+    byContract([ typeName, tagDic ], [ "string", "string|Object.<string, string>" ]);
+    if ( typeName in is ) {
+      throw new byContract.Exception( "Custom type must not override a primitive" );
+    }
+    customTypes[ typeName ] = tagDic;
   };
 
   /**
@@ -209,7 +277,12 @@ define(function() {
 
   byContract.Exception.prototype = new TypeError();
   byContract.is = is;
-  byContract.validate = validate;
+  byContract.validate = function( val, contract ){
+    if ( contract in customTypes ) {
+      return validateCustomType( val, customTypes[ contract ] );
+    }
+    return validate( val, contract );
+  };
   byContract.isEnabled = isEnabled;
 
   byContract.default = byContract;

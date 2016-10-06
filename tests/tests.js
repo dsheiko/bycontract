@@ -303,17 +303,131 @@ describe( "Optional Parameter Validation", function(){
   });
 });
 
-describe( "Typedef", function(){
-  it( "", function(){
-    byContract.typedef( "Hero", {
-      hasSuperhumanStrength: "boolean",
-      hasWaterbreathing: "boolean"
+describe( "Custom types", function(){
+  describe( "byContract.typedef", function(){
+    it( "does not violates the contract ()", function(){
+      var fn = function(){ return byContract.typedef(); };
+       expect( fn ).to.throw( byContract.Exception, /violates the contract/ );
     });
-    var superman = {
-      hasSuperhumanStrength: true,
-      hasWaterbreathing: false
-    },
-    fn = function(){ return byContract( superman, "Hero" ); };
-      expect( fn() ).to.equal( 1 );
+    it( "does not violates the contract (10)", function(){
+      var fn = function(){ return byContract.typedef( 10 ); };
+       expect( fn ).to.throw( byContract.Exception, /violates the contract/ );
+    });
+    it( "does not violates the contract (`Valid`)", function(){
+      var fn = function(){ return byContract.typedef( "Valid" ); };
+       expect( fn ).to.throw( byContract.Exception, /violates the contract/ );
+    });
+    it( "does not violates the contract (`Valid`, true)", function(){
+      var fn = function(){ return byContract.typedef( "Valid", true ); };
+       expect( fn ).to.throw( byContract.Exception, /violates the contract/ );
+    });
+    it( "does not violates the contract (`NumberLike`, `string|number`)", function(){
+      var fn = function(){ return byContract.typedef( "NumberLike", "string|number" ); };
+       expect( fn ).to.not.throw( byContract.Exception, /violates the contract/ );
+    });
+    it( "throws an exception when a primitive (`string`, `string|number`)", function(){
+      var fn = function(){ return byContract.typedef( "string", "string|number" ); };
+      expect( fn ).to.throw( byContract.Exception, /a primitive/ );
+    });
+  });
+  describe( "byContract", function(){
+    describe( "with tag dictionary", function(){
+      it( "doesn't throw on a valid contract", function(){
+        byContract.typedef( "Hero", {
+          hasSuperhumanStrength: "boolean",
+          hasWaterbreathing: "boolean"
+        });
+        var superman = {
+          hasSuperhumanStrength: true,
+          hasWaterbreathing: false
+        },
+        fn = function(){ return byContract( superman, "Hero" ); };
+        expect( fn ).to.not.throw( byContract.Exception, /incorrectly implements interface/ );
+        expect( fn ).to.not.throw( byContract.Exception, /violates the contract/ );
+      });
+      it( "throws on inteface violation", function(){
+        byContract.typedef( "Hero", {
+          hasSuperhumanStrength: "boolean",
+          hasWaterbreathing: "boolean"
+        });
+        var superman = {
+          hasSuperhumanStrength: 1000,
+          hasWaterbreathing: false
+        },
+        fn = function(){ return byContract( superman, "Hero" ); };
+        expect( fn ).to.throw( byContract.Exception, /incorrectly implements interface/ );
+      });
+      it( "throws on incomplete interface implementation", function(){
+        byContract.typedef( "Hero", {
+          hasSuperhumanStrength: "boolean",
+          hasWaterbreathing: "boolean"
+        });
+        var superman = {
+          hasWaterbreathing: false
+        },
+        fn = function(){ return byContract( superman, "Hero" ); };
+        expect( fn ).to.throw( byContract.Exception, /incorrectly implements interface/ );
+      });
+    });
+    describe( "with union type", function(){
+      it( "doesn't throw on a valid contract (number)", function(){
+        byContract.typedef( "NumberLike", "number|string" );
+        var fn = function(){ return byContract( 10, "NumberLike" ); };
+        expect( fn ).to.not.throw( byContract.Exception, /incorrectly implements interface/ );
+        expect( fn ).to.not.throw( byContract.Exception, /violates the contract/ );
+      });
+      it( "doesn't throw on a valid contract (string)", function(){
+        byContract.typedef( "NumberLike", "number|string" );
+        var fn = function(){ return byContract( "10", "NumberLike" ); };
+        expect( fn ).to.not.throw( byContract.Exception, /incorrectly implements interface/ );
+        expect( fn ).to.not.throw( byContract.Exception, /violates the contract/ );
+      });
+      it( "doesn't throw on a valid contract", function(){
+        byContract.typedef( "NumberLike", "number|string" );
+        var fn = function(){ return byContract( true, "NumberLike" ); };
+        expect( fn ).to.throw( byContract.Exception, /incorrectly implements interface/ );
+      });
+    });
+  });
+
+  describe( "byContract.validate", function(){
+    describe( "with tag dictionary", function(){
+      it( "doesn't throw on a valid contract", function(){
+        byContract.typedef( "Hero", {
+          hasSuperhumanStrength: "boolean",
+          hasWaterbreathing: "boolean"
+        });
+        var superman = {
+          hasSuperhumanStrength: true,
+          hasWaterbreathing: false
+        },
+        valid = byContract.validate( superman, "Hero" );
+        expect( valid ).to.be.ok;
+      });
+      it( "throws on inteface violation", function(){
+        byContract.typedef( "Hero", {
+          hasSuperhumanStrength: "boolean",
+          hasWaterbreathing: "boolean"
+        });
+        var superman = {
+          hasSuperhumanStrength: 1000,
+          hasWaterbreathing: false
+        },
+        valid = byContract.validate( superman, "Hero" );
+        expect( valid ).to.not.be.ok;
+      });
+    });
+    describe( "with union type", function(){
+      it( "doesn't throw on a valid contract (number)", function(){
+        byContract.typedef( "NumberLike", "number|string" );
+        var valid = byContract.validate( 10, "NumberLike" );
+        expect( valid ).to.be.ok;
+      });
+      it( "doesn't throw on a valid contract", function(){
+        byContract.typedef( "NumberLike", "number|string" );
+        var valid = byContract.validate( true, "NumberLike" );
+        expect( valid ).to.not.be.ok;
+      });
+    });
   });
 });

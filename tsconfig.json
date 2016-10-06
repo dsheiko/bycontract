@@ -8,10 +8,10 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": true,
-    "outDir": "dist/"
+    "outDir": "./ts/dist/"
   },
   "files": [
     "./typings/index.d.ts",
-    "byContract.ts"
+    "./ts/byContract.ts"
   ]
 }

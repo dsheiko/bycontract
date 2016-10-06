@@ -1,13 +1,14 @@
 {
   "name": "bycontract",
   "description": "Design by Contract",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "byContract.js",
   "typings": "./index.d.ts",
   "scripts": {
     "test": "grunt test",
-    "test:ts": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html"
+    "test:ts": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html",
+    "build": "grunt uglify"
   },
   "keywords": [
     "validation",
