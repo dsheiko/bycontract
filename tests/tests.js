@@ -302,3 +302,18 @@ describe( "Optional Parameter Validation", function(){
     });
   });
 });
+
+describe( "Typedef", function(){
+  it( "", function(){
+    byContract.typedef( "Hero", {
+      hasSuperhumanStrength: "boolean",
+      hasWaterbreathing: "boolean"
+    });
+    var superman = {
+      hasSuperhumanStrength: true,
+      hasWaterbreathing: false
+    },
+    fn = function(){ return byContract( superman, "Hero" ); };
+      expect( fn() ).to.equal( 1 );
+  });
+});

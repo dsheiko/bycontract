@@ -189,6 +189,14 @@ define(function() {
     // V8 starts with error type, FF doesn't
     return ( header === "TypeError" ? "ByContractError\n" : "" ) + lines.join( "\n" );
   };
+
+  byContract.typedef = function( typeName, spec ){
+    is.object( spec );
+    Object.keys( spec ).forEach(function( key ){
+
+    });
+  };
+
   /**
    * Custom exception extending TypeError
    * @param {string} message
