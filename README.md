@@ -75,16 +75,16 @@ class MyModel extends Backbone.Model {
 <a id="Contract-Expressions"></a>
 ## Contract Expressions
 
-### Basic Types
+### Primitive Types
 
-You can use one of basic types: `array`, `string`, `undefined`, `boolean`, `function`, `nan`, `null`, `number`, `object`, `regexp`
+You can use one of primitive types: `array`, `string`, `undefined`, `boolean`, `function`, `nan`, `null`, `number`, `object`, `regexp`
 ```javascript
 byContract( true, "boolean" );
 // or
 byContract( true, "Boolean" );
 ```
 
-### Multiple Types
+### Union Types
 
 ```javascript
 byContract( 100, "string|number|boolean" ); // ok

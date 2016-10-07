@@ -12,6 +12,7 @@
   },
   "keywords": [
     "validation",
+    "precondition",
     "design by contract",
     "contract",
     "interface",
