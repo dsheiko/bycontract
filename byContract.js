@@ -77,7 +77,8 @@ define(function() {
       return true;
     }
     // Case: byContract( val, MyClass );
-    if ( is.function( contract ) ) {
+    // NOTE: some user agents e.g. PhantomJS consider global inerfaces (Node, Event,...) as object
+    if ( is.function( contract ) || typeof contract === "object" ) {
       return val instanceof contract;
     }
 
