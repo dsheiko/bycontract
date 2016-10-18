@@ -430,4 +430,10 @@ describe( "Custom types", function(){
       });
     });
   });
+  describe( "Call context", function(){
+    it( "includes given call context to exception message", function() {
+      var fn = function(){ byContract( "string", "number", "FOO" ); };
+      expect( fn ).to.throw( byContract.Exception, /FOO:/ );
+    });
+  });
 });

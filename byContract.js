@@ -184,21 +184,23 @@ define(function() {
    * @param {*} val
    * @param {*} contract
    * @parma {number} [inx]
+   * @param {string} [callContext]
    * @returns void
    */
-  testValue = function( val, contract, inx ){
-    var exExtra = typeof inx !== "undefined" ? "of index " + inx: "";
+  testValue = function( val, contract, inx, callContext ){
+    var details = is.number( inx ) ? "of index " + inx: "",
+        prefix = callContext ? callContext + ": " : "";
     // first check for a custom type
     if ( contract in customTypes ) {
       if ( !validateCustomType( val, customTypes[ contract ] ) ) {
-        throw new byContract.Exception( "Value " + exExtra +
+        throw new byContract.Exception( prefix + "Value " + details +
           "incorrectly implements interface `" + contract + "`" );
       }
       return;
     }
     // check a contract
     if ( !validate( val, contract ) ) {
-      throw new byContract.Exception( "Value " + exExtra +
+      throw new byContract.Exception( prefix + "Value " + details +
         "violates the contract `" + contract + "`" );
     }
   },
@@ -206,8 +208,9 @@ define(function() {
   /**
    * @param {Array} values
    * @param {Array} contracts
+   * @param {string} [callContext]
    */
-	byContract = function( values, contracts ){
+	byContract = function( values, contracts, callContext ){
     // Disabled on production, ignore
     if ( !isEnabled ) {
       return values;
@@ -225,12 +228,12 @@ define(function() {
       }
       contracts.forEach(function( contract, inx  ){
         var val = values[ inx ];
-        testValue( val, contract );
+        testValue( val, contract, inx, callContext );
       });
       return values;
     }
     // Test a single value against contract
-    testValue( values, contracts );
+    testValue( values, contracts, null, callContext );
     return values;
   },
   /**
