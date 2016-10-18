@@ -189,19 +189,22 @@ define(function() {
    */
   testValue = function( val, contract, inx, callContext ){
     var details = is.number( inx ) ? "of index " + inx: "",
-        prefix = callContext ? callContext + ": " : "";
+        prefix = callContext ? callContext + ": " : "",
+        // Beautifying contract like Node
+        contractDisplay = is.function( contract ) && "name" in contract ? contract.name : contract;
+
     // first check for a custom type
     if ( contract in customTypes ) {
       if ( !validateCustomType( val, customTypes[ contract ] ) ) {
         throw new byContract.Exception( prefix + "Value " + details +
-          "incorrectly implements interface `" + contract + "`" );
+          "incorrectly implements interface `" + contractDisplay + "`" );
       }
       return;
     }
     // check a contract
     if ( !validate( val, contract ) ) {
       throw new byContract.Exception( prefix + "Value " + details +
-        "violates the contract `" + contract + "`" );
+        "violates the contract `" + contractDisplay + "`" );
     }
   },
 

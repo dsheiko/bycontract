@@ -22,6 +22,8 @@ Besides, it exposes `byContract` function globally when `window` object availabl
 ##### Test value against a contract
 ```javascript
 byContract( value, "JSDOC-EXPRESSION" ); // ok or exception
+// or
+byContract( value, "JSDOC-EXPRESSION", "text" ); // exception message prefixed with `text`
 ```
 
 ##### Test set of values against a contract list

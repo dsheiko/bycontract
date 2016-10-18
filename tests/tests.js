@@ -275,6 +275,11 @@ describe( "Optional Parameter Validation", function(){
       fn = function(){ byContract( [ instance ], "Array.<Date>" ); };
       expect( fn ).to.not.throw( byContract.Exception );
     });
+
+    it( "throws exception with normalized message when contract is an interface", function() {
+      var fn = function(){ byContract( "node", Number ); };
+      expect( fn ).to.throw( byContract.Exception, /Value violates the contract `Number`/ );
+    });
   });
 });
 
