@@ -95,50 +95,9 @@ describe( "Custom types", () => {
       });
   });
 
-//
-//  describe( "byContract.validate", () => {
-//    describe( "with tag dictionary", () => {
-//      it( "returns true on a valid contract", () => {
-//        byContract.typedef( "#Hero", {
-//          hasSuperhumanStrength: "boolean",
-//          hasWaterbreathing: "boolean"
-//        });
-//        var superman = {
-//          hasSuperhumanStrength: true,
-//          hasWaterbreathing: false
-//        },
-//        valid = byContract.validate( superman, "#Hero" );
-//        expect( valid ).toBe( true );
-//      });
-//      it( "returns false on inteface violation", () => {
-//        byContract.typedef( "#Hero", {
-//          hasSuperhumanStrength: "boolean",
-//          hasWaterbreathing: "boolean"
-//        });
-//        var superman = {
-//          hasSuperhumanStrength: 1000,
-//          hasWaterbreathing: false
-//        },
-//        valid = byContract.validate( superman, "#Hero" );
-//        expect( valid ).toBe( false );
-//      });
-//    });
-//    describe( "with union type", () => {
-//      it( "returns true a valid contract (number)", () => {
-//        byContract.typedef( "NumberLike", "number|string" );
-//        var valid = byContract.validate( 10, "NumberLike" );
-//        expect( valid ).toBe( true );
-//      });
-//      it( "returns false on contract violation", () => {
-//        byContract.typedef( "NumberLike", "number|string" );
-//        var valid = byContract.validate( true, "NumberLike" );
-//        expect( valid ).toBe( false );
-//      });
-//    });
-//  });
-//  describe( "Call context", () => {
-//    it( "includes given call context to exception message", () => {
-//      var fn = () => { byContract( "string", "number", "FOO" ); };
-//      expect( fn ).toThrowError( /FOO:/ );
-//    });
-//  });
+  describe( "Call context", () => {
+    it( "includes given call context to exception message", () => {
+      var fn = () => { byContract( "string", "number", "FOO" ); };
+      expect( fn ).toThrowError( /FOO:/ );
+    });
+  });
