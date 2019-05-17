@@ -21,11 +21,16 @@ function contract(contracts) {
                         byContract_1.default(args[inx], param.contract);
                     }
                     catch (err) {
-                        throw new exports.Exception(err.code, `Method: ${propKey}, parameter ${param.name}: ` + err);
+                        throw new exports.Exception(err.code, `Method: ${propKey}, parameter ${param.name}: ` + err.message);
                     }
                 });
                 let retVal = callback.apply(this, args);
-                returns && byContract_1.default(retVal, returns);
+                try {
+                    returns && byContract_1.default(retVal, returns.contract);
+                }
+                catch (err) {
+                    throw new exports.Exception(err.code, `Method: ${propKey}, return value: ` + err.message);
+                }
                 return retVal;
             }
         });

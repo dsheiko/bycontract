@@ -215,7 +215,7 @@ class Validate {
         if (!this.contract.split("|").some((contract) => {
             return isValid(this.val, contract);
         })) {
-            throw this.newException("EINVALIDTYPE", `Expected ${contract} but got ${getType(this.val)}`);
+            throw this.newException("EINVALIDTYPE", `Expected ${this.contract} but got ${getType(this.val)}`);
         }
         return true;
     }
@@ -259,7 +259,7 @@ class Validate {
         try {
             is_1.default.object(this.val) && Object.keys(this.val).forEach((key) => {
                 prop = key;
-                validate(this.val[key], match[1]);
+                validate(this.val[key], match[2]);
             });
         }
         catch (err) {

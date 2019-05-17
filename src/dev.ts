@@ -9,6 +9,7 @@ export function contract( contracts: string ) {
   return function( target:Object|Function, propKey:string, descriptor:PropertyDescriptor ):PropertyDescriptor{
     const callback = descriptor.value,
           { params, returns } = validateJsDocString( contracts );
+
     if ( !byContract.isEnabled ) {
       return descriptor;
     }
@@ -20,12 +21,16 @@ export function contract( contracts: string ) {
           try {
             byContract( args[ inx ], param.contract );
           } catch ( err ) {
-            throw new Exception( err.code, `Method: ${ propKey }, parameter ${ param.name }: ` + err );
+            throw new Exception( err.code, `Method: ${ propKey }, parameter ${ param.name }: ` + err.message );
           }
         });
 
         let retVal = callback.apply( this, args );
-        returns && byContract( retVal, returns );
+        try {
+          returns && byContract( retVal, returns.contract );
+        } catch ( err ) {
+          throw new Exception( err.code, `Method: ${ propKey }, return value: ` + err.message );
+          }
         return retVal;
       }
     });

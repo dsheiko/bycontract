@@ -25,7 +25,7 @@ function getType( val: any ): string {
   return basicType || typeof val;
 }
 
-function isValid( val:any, contract:any ): void {
+function isValid( val:any, contract:any ): boolean {
   try {
     validate( val, contract );
     return true;
@@ -270,7 +270,7 @@ class Validate {
     }) ) {
       throw this.newException(
         "EINVALIDTYPE",
-        `Expected ${ contract } but got ${ getType( this.val ) }` );
+        `Expected ${ this.contract } but got ${ getType( this.val ) }` );
     }
     return true;
   }
@@ -323,7 +323,7 @@ class Validate {
     try {
       is.object( this.val ) && Object.keys( this.val ).forEach(( key ) => {
         prop = key;
-        validate( this.val[ key ], match[ 1 ] );
+        validate( this.val[ key ], match[ 2 ] );
       });
     } catch ( err )  {
       throw this.newException(

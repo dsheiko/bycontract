@@ -20,6 +20,17 @@ describe( "Object Validation", () => {
 
   });
 
+  describe( "Flat object with optional", () => {
+    it( "doesn't throw when correct", () => {
+      var fn = () => { byContract( { foo: "value" }, {
+          foo: "string",
+          bar: "number="
+      }); };
+      expect( fn ).not.toThrow();
+    });
+
+  });
+
   describe( "Dimensional object", () => {
     it( "doesn't throw when correct", () => {
       var fn = () => { byContract(
@@ -97,7 +108,7 @@ describe( "Object Validation", () => {
             }
           }
         }]); };
-      expect( fn ).toThrowError( /Argument #0: property #foo.bar.baz Expected number but got string/ );
+      expect( fn ).toThrowError( /Argument #0:\s+property #foo.bar.baz Expected number but got string/ );
     });
 
   });
