@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ByContract Tests</title>
+  <style>
+    .console {
+      padding: 32px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="console"></div>
+  <script src="./byContract.min.js"></script>
+  <script>
+    const con = document.querySelector( ".console" );
+    byContract( 1, "number|string" );
+    con.insertAdjacentHTML( 'beforeend', `<p>byContract( 1, "number|string" ); - fine</p>` );
+    try {
+      throw new Error("gogogg");
+      byContract( null, "number|string" );
+    } catch ( err ) {
+      console.error( err );
+      con.insertAdjacentHTML( 'beforeend', `<p>byContract( null, "number|string" ); - throws ${ err.message }</p>` );
+    }
+    byContract.isEnabled = false;
+    try {
+      byContract( null, "number|string" );
+      con.insertAdjacentHTML( 'beforeend', `<p>byContract( null, "number|string" ); `
+        + `- throws nothing when byContract.isEnabled = false</p>` );
+    } catch ( err ) {
+      con.insertAdjacentHTML( 'beforeend', `<p>fail</p>` );
+    }
+  </script>
+</body>
+</html>

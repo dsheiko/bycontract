@@ -1,14 +1,15 @@
 {
   "name": "bycontract",
   "description": "Design by Contract",
-  "version": "0.0.7",
+  "version": "2.0.0",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
-  "main": "byContract.js",
+  "main": "dist/index.js",
   "typings": "./index.d.ts",
   "scripts": {
-    "test": "grunt test",
-    "test:ts": "tsc && tsc -p tests/typescript/ && mocha-phantomjs tests/typescript/index.html",
-    "build": "grunt uglify"
+    "test": "jest --config=jest.cfg.unit.js",
+    "build": "npm run build:module && npm run build:web",
+    "build:module": "tsc",
+    "build:web": "webpack"
   },
   "keywords": [
     "validation",
@@ -20,16 +21,21 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "chai": "^3.3.0",
-    "es6-shim": "^0.35.1",
-    "grunt": "^0.4.5",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-uglify": "^0.11.0",
-    "grunt-mocha-cli": "^2.0.0",
-    "grunt-mocha-phantomjs": "^2.0.1",
-    "mocha": "^2.3.4",
-    "mocha-phantomjs": "^4.1.0",
-    "systemjs": "^0.19.36"
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.2",
+    "cross-env": "^5.2.0",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "terser-webpack-plugin": "^1.2.4",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.0",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.4.5",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
   },
   "licenses": [
     {

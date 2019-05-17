@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES5",
     "module": "commonjs",
+    "target": "es6",
     "moduleResolution": "node",
+    "types": [
+      "node",
+      "jest"
+    ],
     "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": true,
-    "outDir": "./ts/dist/"
+    "esModuleInterop": true,
+    "allowJs": true,
+    "outDir": "./dist/"
   },
   "files": [
-    "./typings/index.d.ts",
-    "./ts/byContract.ts"
+    "./src/dev.ts"
   ]
 }
