@@ -28,79 +28,78 @@ describe( "Custom types", () => {
 //      expect( fn ).toThrowError( /a primitive/ );
 //    });
 //  });
-  describe( "byContract", () => {
-    describe( "with tag dictionary", () => {
-      it( "doesn't throw on a valid contract", () => {
-        byContract.typedef( "Hero", "string" );
-        const fn = () => { return byContract( "string", "Hero" ); };
-        expect( fn ).not.toThrow();
+
+      describe( "with tag dictionary", () => {
+        it( "doesn't throw on a valid contract", () => {
+          byContract.typedef( "#Hero", "string" );
+          const fn = () => { return byContract( "string", "#Hero" ); };
+          expect( fn ).not.toThrow();
+
+        });
+        it( "doesn't throw on a valid contract", () => {
+          byContract.typedef( "#Hero", {
+            hasSuperhumanStrength: "boolean",
+            hasWaterbreathing: "boolean"
+          });
+          var superman = {
+            hasSuperhumanStrength: true,
+            hasWaterbreathing: false
+          },
+          fn = () => { return byContract( superman, "#Hero" ); };
+          try { fn(); } catch( err ){ console.log( err.message ); }
+
+          expect( fn ).not.toThrow();
+
+        });
+        it( "throws on inteface violation", () => {
+          byContract.typedef( "#Hero", {
+            hasSuperhumanStrength: "boolean",
+            hasWaterbreathing: "boolean"
+          });
+          var superman = {
+            hasSuperhumanStrength: 1000,
+            hasWaterbreathing: false
+          },
+          fn = () => { return byContract( superman, "#Hero" ); };
+          expect( fn ).toThrowError( /property #hasSuperhumanStrength Expected boolean but got number/ );
+        });
+        it( "throws on incomplete interface implementation", () => {
+          byContract.typedef( "#Hero", {
+            hasSuperhumanStrength: "boolean",
+            hasWaterbreathing: "boolean"
+          });
+          var superman = {
+            hasWaterbreathing: false
+          },
+          fn = () => { return byContract( superman, "#Hero" ); };
+          expect( fn ).toThrowError( /Missing required property #hasSuperhumanStrength/ );
+        });
+      });
+    });
+    describe( "with union type", () => {
+      it( "doesn't throw on a valid contract (number)", () => {
+        byContract.typedef( "#NumberLike", "number|string" );
+        var fn = () => { return byContract( 10, "#NumberLike" ); };
+        expect( fn ).not.toThrowError();
 
       });
-//      it( "doesn't throw on a valid contract", () => {
-//        byContract.typedef( "Hero", {
-//          hasSuperhumanStrength: "boolean",
-//          hasWaterbreathing: "boolean"
-//        });
-//        var superman = {
-//          hasSuperhumanStrength: true,
-//          hasWaterbreathing: false
-//        },
-//        fn = () => { return byContract( superman, "Hero" ); };
-//        try { fn(); } catch( err ){ console.log( err.message ); }
-//
-//        expect( fn ).not.toThrow();
-//
-//      });
-//      it( "throws on inteface violation", () => {
-//        byContract.typedef( "Hero", {
-//          hasSuperhumanStrength: "boolean",
-//          hasWaterbreathing: "boolean"
-//        });
-//        var superman = {
-//          hasSuperhumanStrength: 1000,
-//          hasWaterbreathing: false
-//        },
-//        fn = () => { return byContract( superman, "Hero" ); };
-//        expect( fn ).toThrowError( /incorrectly implements interface/ );
-//      });
-//      it( "throws on incomplete interface implementation", () => {
-//        byContract.typedef( "Hero", {
-//          hasSuperhumanStrength: "boolean",
-//          hasWaterbreathing: "boolean"
-//        });
-//        var superman = {
-//          hasWaterbreathing: false
-//        },
-//        fn = () => { return byContract( superman, "Hero" ); };
-//        expect( fn ).toThrowError( /incorrectly implements interface/ );
-//      });
-    });
-    });
-//    describe( "with union type", () => {
-//      it( "doesn't throw on a valid contract (number)", () => {
-//        byContract.typedef( "NumberLike", "number|string" );
-//        var fn = () => { return byContract( 10, "NumberLike" ); };
-//        expect( fn ).not.toThrowError( /incorrectly implements interface/ );
-//        expect( fn ).not.toThrowError( /byContract.typedef: Expected/ );
-//      });
-//      it( "doesn't throw on a valid contract (string)", () => {
-//        byContract.typedef( "NumberLike", "number|string" );
-//        var fn = () => { return byContract( "10", "NumberLike" ); };
-//        expect( fn ).not.toThrowError( /incorrectly implements interface/ );
-//        expect( fn ).not.toThrowError( /byContract.typedef: Expected/ );
-//      });
-//      it( "doesn't throw on a valid contract", () => {
-//        byContract.typedef( "NumberLike", "number|string" );
-//        var fn = () => { return byContract( true, "NumberLike" ); };
-//        expect( fn ).toThrowError( /incorrectly implements interface/ );
-//      });
-//    });
-//  });
+      it( "doesn't throw on a valid contract (string)", () => {
+        byContract.typedef( "#NumberLike", "number|string" );
+        var fn = () => { return byContract( "value", "#NumberLike" ); };
+        expect( fn ).not.toThrowError();
+      });
+      it( "doesn't throw on a# valid contract", () => {
+        byContract.typedef( "NumberLike", "number|string" );
+        var fn = () => { return byContract( true, "#NumberLike" ); };
+        //pect( fn ).toThrowError( /Missing required property #hasSuperhumanStrength/ );
+      });
+  });
+
 //
 //  describe( "byContract.validate", () => {
 //    describe( "with tag dictionary", () => {
 //      it( "returns true on a valid contract", () => {
-//        byContract.typedef( "Hero", {
+//        byContract.typedef( "#Hero", {
 //          hasSuperhumanStrength: "boolean",
 //          hasWaterbreathing: "boolean"
 //        });
@@ -108,11 +107,11 @@ describe( "Custom types", () => {
 //          hasSuperhumanStrength: true,
 //          hasWaterbreathing: false
 //        },
-//        valid = byContract.validate( superman, "Hero" );
+//        valid = byContract.validate( superman, "#Hero" );
 //        expect( valid ).toBe( true );
 //      });
 //      it( "returns false on inteface violation", () => {
-//        byContract.typedef( "Hero", {
+//        byContract.typedef( "#Hero", {
 //          hasSuperhumanStrength: "boolean",
 //          hasWaterbreathing: "boolean"
 //        });
@@ -120,7 +119,7 @@ describe( "Custom types", () => {
 //          hasSuperhumanStrength: 1000,
 //          hasWaterbreathing: false
 //        },
-//        valid = byContract.validate( superman, "Hero" );
+//        valid = byContract.validate( superman, "#Hero" );
 //        expect( valid ).toBe( false );
 //      });
 //    });
@@ -143,4 +142,3 @@ describe( "Custom types", () => {
 //      expect( fn ).toThrowError( /FOO:/ );
 //    });
 //  });
-});

@@ -8,7 +8,7 @@ const scope:Indexable = ( typeof window !== "undefined" ? window : global );
 const customTypes: any = {};
 
 function err( msg: string, callContext: string, argInx?: number ) {
-  const loc = typeof argInx !== "undefined" ? `Argument #${ argInx }:` : ``,
+  const loc = typeof argInx !== "undefined" ? `Argument #${ argInx }: ` : ``,
         prefix = callContext ? callContext + ": " : "";
   return `${prefix}${ loc }${ msg }`;
 }
@@ -17,10 +17,10 @@ function err( msg: string, callContext: string, argInx?: number ) {
 /**
  * Document a custom type
  * @param {string} typeName
- * @param {string|Object.<string, string>} tagDic
+ * @param {string|Object.<string, *>} tagDic
  */
 function typedef( typeName: string, tagDic: any ){
-  byContract([ typeName, tagDic ], [ "string", "string|Object.<string, string>" ], "byContract.typedef" );
+  byContract([ typeName, tagDic ], [ "string", "*" ], "byContract.typedef" );
   if ( typeName in is ) {
     throw new Exception( "EINVALIDPARAM", "Custom type must not override a primitive" );
   }
@@ -55,7 +55,7 @@ export default function byContract( values: any | any[], contracts: any | any[],
       if ( !( inx in values ) ) {
         throw new Exception( "EMISSINGARG", err( "Missing required agument", callContext ) );
       }
-      byContract.validate( values[ inx ], c, callContext );
+      byContract.validate( values[ inx ], c, callContext, inx );
     });
     return values;
   }
@@ -63,7 +63,7 @@ export default function byContract( values: any | any[], contracts: any | any[],
   return values;
 }
 
-byContract.validate = ( value: any, contract: any, callContext?: string ) => {
+byContract.validate = ( value: any, contract: any, callContext?: string, inx?: number ) => {
   try {
     if ( contract in  customTypes ) {
       return validate( value, customTypes[ contract ] );
@@ -74,7 +74,7 @@ byContract.validate = ( value: any, contract: any, callContext?: string ) => {
     if ( !( ex instanceof Exception ) ) {
       throw ex;
     }
-    throw new Exception( ex.code, err( ex.message, callContext ) );
+    throw new Exception( ex.code, err( ex.message, callContext, inx ) );
   }
 }
 

@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Exception_1 = __importDefault(require("./Exception"));
 const is_1 = __importDefault(require("./is"));
 const scope = (typeof window !== "undefined" ? window : global);
+function isOptional(propContract) {
+    return is_1.default.string(propContract) && propContract.endsWith("=");
+}
 /**
  * Translate contracts into string when built-in object
  */
@@ -22,13 +25,25 @@ function getType(val) {
     const basicType = Object.keys(is_1.default).find(aType => is_1.default[aType](val));
     return basicType || typeof val;
 }
+function isValid(val, contract) {
+    try {
+        validate(val, contract);
+        return true;
+    }
+    catch (ex) {
+        if (!(ex instanceof Exception_1.default)) {
+            throw ex;
+        }
+        return false;
+    }
+}
 function validate(val, contract, propPath = "") {
     const lib = new Validate(val, contract, propPath);
     lib.validate();
 }
 exports.default = validate;
 function normalizeProp(prop, propPath) {
-    return propPath ? propPath + prop : prop;
+    return propPath ? propPath + "." + prop : prop;
 }
 class Validate {
     constructor(val, contract, propPath = "") {
@@ -37,6 +52,9 @@ class Validate {
         this.propPath = propPath;
     }
     validate() {
+        if (this.assertAny()) {
+            return;
+        }
         if (this.assertObject()) {
             return;
         }
@@ -96,6 +114,12 @@ class Validate {
         }
         throw this.newException("EINTERFACEVIOLATION", `Expected instance of ${scope[this.contract]} but got ${stringify(this.val)}`);
     }
+    assertAny() {
+        if (is_1.default.string(this.contract) && this.contract === "*") {
+            return true;
+        }
+        return false;
+    }
     assertObject() {
         // exclude null/undefined, ensure an object
         if (!this.contract || typeof this.contract !== "object") {
@@ -106,10 +130,10 @@ class Validate {
         }
         Object.keys(this.contract).forEach((prop, inx) => {
             const propContract = this.contract[prop];
-            if (!(prop in this.val && !propContract.endsWith("="))) {
+            if (!(prop in this.val) && !isOptional(propContract)) {
                 throw this.newException("EMISSINGPROP", `Missing required property #` + normalizeProp(prop, this.propPath));
             }
-            validate(this.val[prop], propContract, prop + ".");
+            validate(this.val[prop], propContract, normalizeProp(prop, this.propPath));
         });
         return true;
     }
@@ -188,9 +212,11 @@ class Validate {
         if (!this.contract.includes("|")) {
             return false;
         }
-        this.contract.split("|").forEach((contract) => {
-            validate(this.val, contract);
-        });
+        if (!this.contract.split("|").some((contract) => {
+            return isValid(this.val, contract);
+        })) {
+            throw this.newException("EINVALIDTYPE", `Expected ${contract} but got ${getType(this.val)}`);
+        }
         return true;
     }
     /**

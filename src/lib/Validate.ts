@@ -3,6 +3,10 @@ import Exception from "./Exception";
 import is from "./is";
 
 const scope:Indexable = ( typeof window !== "undefined" ? window : global );
+
+function isOptional( propContract: any ) {
+  return is.string( propContract ) && propContract.endsWith( "=" );
+}
 /**
  * Translate contracts into string when built-in object
  */
@@ -21,13 +25,25 @@ function getType( val: any ): string {
   return basicType || typeof val;
 }
 
+function isValid( val:any, contract:any ): void {
+  try {
+    validate( val, contract );
+    return true;
+  } catch ( ex ) {
+    if ( !( ex instanceof Exception ) ) {
+      throw ex;
+    }
+    return false;
+  }
+}
+
 export default function validate( val:any, contract:any, propPath: string = "" ): void {
   const lib = new Validate( val, contract, propPath );
   lib.validate();
 }
 
 function normalizeProp( prop: string, propPath: string ): string {
-  return propPath ? propPath + prop : prop;
+  return propPath ? propPath + "." + prop : prop;
 }
 
 class Validate {
@@ -36,6 +52,10 @@ class Validate {
  }
 
  validate() {
+
+    if ( this.assertAny() ) {
+      return;
+    }
 
     if ( this.assertObject() ) {
       return;
@@ -118,6 +138,13 @@ class Validate {
       `Expected instance of ${ scope[ this.contract ] } but got ${ stringify( this.val ) }` );
   }
 
+  assertAny(): boolean {
+    if ( is.string( this.contract ) && this.contract === "*" ) {
+       return true;
+    }
+    return false;
+  }
+
   assertObject(): boolean {
 
     // exclude null/undefined, ensure an object
@@ -134,17 +161,20 @@ class Validate {
 
     Object.keys( this.contract ).forEach(( prop: any, inx: number ) => {
       const propContract = this.contract[ prop ];
-      if ( !( prop in this.val && !propContract.endsWith( "=" ) ) ) {
+
+      if ( !( prop in this.val ) && !isOptional( propContract ) ) {
         throw this.newException(
           "EMISSINGPROP",
           `Missing required property #` + normalizeProp( prop, this.propPath )
         );
       }
-      validate( this.val[ prop ], propContract, prop + "." );
+      validate( this.val[ prop ], propContract, normalizeProp( prop, this.propPath ) );
     });
 
     return true;
   }
+
+
 
   /**
    * Case: byContract( val, MyClass );
@@ -235,9 +265,13 @@ class Validate {
     if ( !this.contract.includes( "|" ) ) {
       return false;
     }
-    this.contract.split( "|" ).forEach(( contract: any ) => {
-      validate( this.val, contract );
-    });
+    if ( !this.contract.split( "|" ).some(( contract: any ) => {
+      return isValid( this.val, contract );
+    }) ) {
+      throw this.newException(
+        "EINVALIDTYPE",
+        `Expected ${ contract } but got ${ getType( this.val ) }` );
+    }
     return true;
   }
 

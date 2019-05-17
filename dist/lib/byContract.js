@@ -9,16 +9,16 @@ const is_1 = __importDefault(require("./is"));
 const scope = (typeof window !== "undefined" ? window : global);
 const customTypes = {};
 function err(msg, callContext, argInx) {
-    const loc = typeof argInx !== "undefined" ? `Argument #${argInx}:` : ``, prefix = callContext ? callContext + ": " : "";
+    const loc = typeof argInx !== "undefined" ? `Argument #${argInx}: ` : ``, prefix = callContext ? callContext + ": " : "";
     return `${prefix}${loc}${msg}`;
 }
 /**
  * Document a custom type
  * @param {string} typeName
- * @param {string|Object.<string, string>} tagDic
+ * @param {string|Object.<string, *>} tagDic
  */
 function typedef(typeName, tagDic) {
-    byContract([typeName, tagDic], ["string", "string|Object.<string, string>"], "byContract.typedef");
+    byContract([typeName, tagDic], ["string", "*"], "byContract.typedef");
     if (typeName in is_1.default) {
         throw new Exception_1.default("EINVALIDPARAM", "Custom type must not override a primitive");
     }
@@ -51,7 +51,7 @@ function byContract(values, contracts, callContext) {
             if (!(inx in values)) {
                 throw new Exception_1.default("EMISSINGARG", err("Missing required agument", callContext));
             }
-            byContract.validate(values[inx], c, callContext);
+            byContract.validate(values[inx], c, callContext, inx);
         });
         return values;
     }
@@ -59,7 +59,7 @@ function byContract(values, contracts, callContext) {
     return values;
 }
 exports.default = byContract;
-byContract.validate = (value, contract, callContext) => {
+byContract.validate = (value, contract, callContext, inx) => {
     try {
         if (contract in customTypes) {
             return Validate_1.default(value, customTypes[contract]);
@@ -71,7 +71,7 @@ byContract.validate = (value, contract, callContext) => {
         if (!(ex instanceof Exception_1.default)) {
             throw ex;
         }
-        throw new Exception_1.default(ex.code, err(ex.message, callContext));
+        throw new Exception_1.default(ex.code, err(ex.message, callContext, inx));
     }
 };
 byContract.Exception = Exception_1.default;
