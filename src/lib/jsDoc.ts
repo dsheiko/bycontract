@@ -9,11 +9,11 @@ interface ParserDto {
  * @param {string} line
  * @returns {ParserDto}
  */
-function parse( line: string ): ParserDto {
+export function parse( line: string ): ParserDto {
   const iLeft = line.indexOf( "{" ),
         iRight = line.indexOf( "}" );
   if ( iLeft === -1 || iRight === -1 ) {
-    throw new Exception( "EINVALIDJSDOC", "Invalid JSDOC" );
+    throw new Exception( "EINVALIDJSDOC", "invalid JSDOC. Expected syntax: { exp } param" );
   }
   const contract = line.substr( iLeft + 1, iRight - iLeft - 1 ),
         name = line.substr( iRight + 1 ).trim();
@@ -24,7 +24,7 @@ export function validateJsDocString( jsdoc: string ) {
   let params: ParserDto[] = [], returns: any = null;
   jsdoc
     .split( "\n" )
-    .map( line => line.trim() )
+    .map( line => line.trim().replace( /\r/, "" ) )
     .filter( line => line.length )
     .forEach( line => {
 
@@ -36,7 +36,7 @@ export function validateJsDocString( jsdoc: string ) {
           returns = parse( line );
           break;
         default:
-          throw new Exception( "EINVALIDJSDOC", "Only @param and @returns tags allowed" );
+          throw new Exception( "EINVALIDJSDOC", "only @param and @returns tags allowed" );
       }
 
     });

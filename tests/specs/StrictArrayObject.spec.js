@@ -11,7 +11,19 @@ describe( "Array/Object Validation", () => {
       expect( fn ).toThrowError( /array element 1: expected number but got object/ );
     });
   });
-  describe( "number[]", () => {
+
+  describe( "{Array.<*>}", () => {
+    it( "doesn't throw when correct", () => {
+      var fn = () => { byContract( [ 1, "2" ], "Array.<*>" ); };
+      expect( fn ).not.toThrow();
+    });
+    it( "throws when incorrect", () => {
+      var fn = () => { byContract( null, "Array.<*>" ); };
+      expect( fn ).toThrowError( /expected array but got null/ );
+    });
+  });
+
+  describe( "{number[]}", () => {
     it( "doesn't throw when byContract( [ 1, 2 ], \"number[]\" )", () => {
       var fn = () => { byContract( [ 1, 2 ], "number[]" ); };
       expect( fn ).not.toThrow();
@@ -22,7 +34,18 @@ describe( "Array/Object Validation", () => {
     });
   });
 
-  describe( "number[] in Union type", () => {
+  describe( "{*[]}", () => {
+    it( "doesn't throw when correct", () => {
+      var fn = () => { byContract( [ 1, "2" ], "*[]" ); };
+      expect( fn ).not.toThrow();
+    });
+    it( "throws when incorrect", () => {
+      var fn = () => { byContract( null, "*[]" ); };
+      expect( fn ).toThrowError( /expected array but got null/ );
+    });
+  });
+
+  describe( "{number[]} in Union type", () => {
     it( "doesn't throw when correct", () => {
       var fn = () => { byContract( [ 1, 2 ], "string|number[]" ); };
       expect( fn ).not.toThrow();

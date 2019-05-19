@@ -7,6 +7,28 @@ const byContract_1 = __importDefault(require("./lib/byContract"));
 const jsDoc_1 = require("./lib/jsDoc");
 exports.Exception = byContract_1.default.Exception;
 exports.default = byContract_1.default;
+function jsdoc(strings, ...rest) {
+    strings
+        .map(line => line.trim().replace(/[\r\n]/, ""))
+        .filter(line => line.length)
+        .forEach((str, inx) => {
+        const { contract } = jsDoc_1.parse(str);
+        if (!contract || !(inx in rest)) {
+            throw new exports.Exception("EINVALIDJSODC", `invalid JSDOC. Expected syntax::
+  @param {string|number} $\{ foo \}
+  @param {number} $\{ bar \}
+         `);
+        }
+        try {
+            byContract_1.default(rest[inx], contract);
+        }
+        catch (err) {
+            throw new exports.Exception(err.code, `Argument #${inx}: ` + err.message);
+        }
+    });
+    return "ignore";
+}
+exports.jsdoc = jsdoc;
 function contract(contracts) {
     return function (target, propKey, descriptor) {
         const callback = descriptor.value, { params, returns } = jsDoc_1.validateJsDocString(contracts);

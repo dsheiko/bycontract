@@ -12,16 +12,17 @@ const Exception_1 = __importDefault(require("./Exception"));
 function parse(line) {
     const iLeft = line.indexOf("{"), iRight = line.indexOf("}");
     if (iLeft === -1 || iRight === -1) {
-        throw new Exception_1.default("EINVALIDJSDOC", "Invalid JSDOC");
+        throw new Exception_1.default("EINVALIDJSDOC", "invalid JSDOC. Expected syntax: { exp } param");
     }
     const contract = line.substr(iLeft + 1, iRight - iLeft - 1), name = line.substr(iRight + 1).trim();
     return { contract, name };
 }
+exports.parse = parse;
 function validateJsDocString(jsdoc) {
     let params = [], returns = null;
     jsdoc
         .split("\n")
-        .map(line => line.trim())
+        .map(line => line.trim().replace(/\r/, ""))
         .filter(line => line.length)
         .forEach(line => {
         switch (true) {
@@ -32,7 +33,7 @@ function validateJsDocString(jsdoc) {
                 returns = parse(line);
                 break;
             default:
-                throw new Exception_1.default("EINVALIDJSDOC", "Only @param and @returns tags allowed");
+                throw new Exception_1.default("EINVALIDJSDOC", "only @param and @returns tags allowed");
         }
     });
     return { params, returns };

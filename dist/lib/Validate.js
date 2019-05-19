@@ -237,6 +237,10 @@ class Validate {
         }
         const contract = this.contract.replace(/\[\]$/, "");
         let elInx = 0;
+        if (contract === "*") {
+            this.contract = "array";
+            return this.assertBasicType();
+        }
         try {
             is_1.default.array(this.val) && this.val.forEach((v) => {
                 validate(v, contract);
@@ -261,6 +265,10 @@ class Validate {
         if (!match) {
             throw this.newException("EINVALIDCONTRACT", `invalid contract ${stringify(this.contract)}`);
         }
+        if (match[1] === "*") {
+            this.contract = "array";
+            return this.assertBasicType();
+        }
         try {
             is_1.default.array(this.val) && this.val.forEach((v) => {
                 validate(v, match[1]);
@@ -284,6 +292,10 @@ class Validate {
         const match = this.contract.match(/Object\.<(.+),\s*(.+)>/i);
         if (!match) {
             throw this.newException("EINVALIDCONTRACT", `invalid contract ${stringify(this.contract)}`);
+        }
+        if (match[2] === "*") {
+            this.contract = "object";
+            return this.assertBasicType();
         }
         try {
             is_1.default.object(this.val) && Object.keys(this.val).forEach((key) => {
