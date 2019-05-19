@@ -25,7 +25,7 @@ function getType(val) {
     const basicType = Object.keys(is_1.default).find(aType => is_1.default[aType](val));
     return basicType || typeof val;
 }
-function isValid(val, contract) {
+function isValid(val, contract, exceptions = []) {
     try {
         validate(val, contract);
         return true;
@@ -34,6 +34,7 @@ function isValid(val, contract) {
         if (!(ex instanceof Exception_1.default)) {
             throw ex;
         }
+        exceptions.push(ex.message);
         return false;
     }
 }
@@ -64,7 +65,7 @@ class Validate {
             return;
         }
         if (!is_1.default.string(this.contract)) {
-            throw this.newException("EINVALIDCONTRACT", "Invalid parameters. Contract must be a string or a constructor function");
+            throw this.newException("EINVALIDCONTRACT", "invalid parameters. Contract must be a string or a constructor function");
         }
         // Case: byContract( val, "number=" ); - optional parameter
         if (this.assertOptional()) {
@@ -85,6 +86,10 @@ class Validate {
         if (this.assertUnion()) {
             return true;
         }
+        // Case: byContract( val, "number[]" );
+        if (this.assertStrictArrayJson()) {
+            return true;
+        }
         // Case: byContract( val, "Array.<string>" );
         if (this.assertStrictArray()) {
             return;
@@ -94,12 +99,12 @@ class Validate {
             return;
         }
         if (!this.contract.match(/^[a-zA-Z0-9\._]+$/)) {
-            throw this.newException("EINVALIDCONTRACT", `Invalid contract ${JSON.stringify(this.contract)}`);
+            throw this.newException("EINVALIDCONTRACT", `invalid contract ${JSON.stringify(this.contract)}`);
         }
         if (this.assertGlobal()) {
             return;
         }
-        throw this.newException("EINVALIDCONTRACT", `Invalid contract ${JSON.stringify(this.contract)}`);
+        throw this.newException("EINVALIDCONTRACT", `invalid contract ${JSON.stringify(this.contract)}`);
     }
     /**
      * Case: byContract( val, "Backbone.Model" );
@@ -112,7 +117,7 @@ class Validate {
         if (this.val instanceof scope[this.contract]) {
             return true;
         }
-        throw this.newException("EINTERFACEVIOLATION", `Expected instance of ${scope[this.contract]} but got ${stringify(this.val)}`);
+        throw this.newException("EINTERFACEVIOLATION", `expected instance of ${scope[this.contract]} but got ${stringify(this.val)}`);
     }
     assertAny() {
         if (is_1.default.string(this.contract) && this.contract === "*") {
@@ -126,12 +131,12 @@ class Validate {
             return false;
         }
         if (!this.val || typeof this.val !== "object") {
-            throw this.newException("EINVALIDTYPE", `Expected object literal but got ${getType(this.val)}`);
+            throw this.newException("EINVALIDTYPE", `expected object literal but got ${getType(this.val)}`);
         }
         Object.keys(this.contract).forEach((prop, inx) => {
             const propContract = this.contract[prop];
             if (!(prop in this.val) && !isOptional(propContract)) {
-                throw this.newException("EMISSINGPROP", `Missing required property #` + normalizeProp(prop, this.propPath));
+                throw this.newException("EMISSINGPROP", `missing required property #` + normalizeProp(prop, this.propPath));
             }
             validate(this.val[prop], propContract, normalizeProp(prop, this.propPath));
         });
@@ -146,7 +151,7 @@ class Validate {
             return false;
         }
         if (!(this.val instanceof this.contract)) {
-            throw this.newException("EINTERFACEVIOLATION", `Expected instance of ${stringify(this.contract)} but got ${stringify(this.val)}`);
+            throw this.newException("EINTERFACEVIOLATION", `expected instance of ${stringify(this.contract)} but got ${stringify(this.val)}`);
         }
         return true;
     }
@@ -174,7 +179,7 @@ class Validate {
             return false;
         }
         if (!test(this.val)) {
-            throw this.newException("EINVALIDTYPE", `Expected ${vtype} but got ${getType(this.val)}`);
+            throw this.newException("EINVALIDTYPE", `expected ${vtype} but got ${getType(this.val)}`);
         }
         return true;
     }
@@ -189,7 +194,7 @@ class Validate {
         if (is_1.default.number(this.val) || is_1.default["null"](this.val)) {
             return true;
         }
-        throw this.newException("EINVALIDTYPE", `Expected nullable but got ${getType(this.val)}`);
+        throw this.newException("EINVALIDTYPE", `expected nullable but got ${getType(this.val)}`);
     }
     /**
      * Case: byContract( val, "!number" );
@@ -202,7 +207,7 @@ class Validate {
         if (is_1.default.number(this.val) && !is_1.default["null"](this.val)) {
             return true;
         }
-        throw this.newException("EINVALIDTYPE", `Expected non-nullable but got ${getType(this.val)}`);
+        throw this.newException("EINVALIDTYPE", `expected non-nullable but got ${getType(this.val)}`);
     }
     /**
      * Case: byContract( val, "number|boolean" );
@@ -212,10 +217,34 @@ class Validate {
         if (!this.contract.includes("|")) {
             return false;
         }
+        let exceptions = [];
         if (!this.contract.split("|").some((contract) => {
-            return isValid(this.val, contract);
+            return isValid(this.val, contract, exceptions);
         })) {
-            throw this.newException("EINVALIDTYPE", `Expected ${this.contract} but got ${getType(this.val)}`);
+            const tdesc = (is_1.default.array(this.val) || is_1.default.object(this.val))
+                ? "failed on each: " + exceptions.join(", ") : "got " + getType(this.val);
+            throw this.newException("EINVALIDTYPE", `expected ${this.contract} but ${tdesc}`);
+        }
+        return true;
+    }
+    /**
+     * Case: byContract( val, "string[]" );
+     * @returns boolean is resolved
+     */
+    assertStrictArrayJson() {
+        if (!this.contract.endsWith("[]")) {
+            return false;
+        }
+        const contract = this.contract.replace(/\[\]$/, "");
+        let elInx = 0;
+        try {
+            is_1.default.array(this.val) && this.val.forEach((v) => {
+                validate(v, contract);
+                elInx++;
+            });
+        }
+        catch (err) {
+            throw this.newException("EINVALIDTYPE", `array element ${elInx}: ${err.message}`);
         }
         return true;
     }
@@ -230,7 +259,7 @@ class Validate {
         let elInx = 0;
         const match = this.contract.match(/Array\.<(.+)>/i);
         if (!match) {
-            throw this.newException("EINVALIDCONTRACT", `Invalid contract ${stringify(this.contract)}`);
+            throw this.newException("EINVALIDCONTRACT", `invalid contract ${stringify(this.contract)}`);
         }
         try {
             is_1.default.array(this.val) && this.val.forEach((v) => {
@@ -254,7 +283,7 @@ class Validate {
         let prop = null;
         const match = this.contract.match(/Object\.<(.+),\s*(.+)>/i);
         if (!match) {
-            throw this.newException("EINVALIDCONTRACT", `Invalid contract ${stringify(this.contract)}`);
+            throw this.newException("EINVALIDCONTRACT", `invalid contract ${stringify(this.contract)}`);
         }
         try {
             is_1.default.object(this.val) && Object.keys(this.val).forEach((key) => {

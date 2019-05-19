@@ -15,7 +15,7 @@ describe( "Object Validation", () => {
           foo: "string",
           bar: "null"
       }); };
-      expect( fn ).toThrowError( /property #bar Expected null but got number/ );
+      expect( fn ).toThrowError( /property #bar expected null but got number/ );
     });
 
   });
@@ -67,7 +67,7 @@ describe( "Object Validation", () => {
             }
           }
         }); };
-      expect( fn ).toThrowError( /property #foo.bar.baz Expected number but got string/ );
+      expect( fn ).toThrowError( /property #foo.bar.baz expected number but got string/ );
     });
 
   });
@@ -108,7 +108,7 @@ describe( "Object Validation", () => {
             }
           }
         }]); };
-      expect( fn ).toThrowError( /Argument #0:\s+property #foo.bar.baz Expected number but got string/ );
+      expect( fn ).toThrowError( /Argument #0:\s+property #foo.bar.baz expected number but got string/ );
     });
 
   });

@@ -21,7 +21,7 @@ describe( "@contract", () => {
       }
 
       let fn = () => { ( new Fixture() ).test( 1 ); };
-      expect( fn ).toThrowError( /Method: test, parameter foo: Expected string but got number/ );
+      expect( fn ).toThrowError( /Method: test, parameter foo: expected string but got number/ );
     });
     it( "doesn't lose the return value", () => {
       class Fixture {
@@ -70,7 +70,7 @@ describe( "@contract <static>", () => {
         static test( arg ){}
       }
       let fn = () => { Fixture.test( 12 ); };
-      expect( fn ).toThrowError( /Method: test, parameter foo: Expected string but got number/ );
+      expect( fn ).toThrowError( /Method: test, parameter foo: expected string but got number/ );
     });
   });
 });
@@ -101,7 +101,7 @@ describe( "@contract multi-params and returns", () => {
       }
       let fn = () => { ( new Fixture() )
           .test( "string", [ "string" ] ); };
-      expect( fn ).toThrowError( /Method: test, return value: Expected string but got number/ );
+      expect( fn ).toThrowError( /Method: test, return value: expected string but got number/ );
     });
     it( "throws when incorrect @param", () => {
       class Fixture {
@@ -114,7 +114,7 @@ describe( "@contract multi-params and returns", () => {
       }
       let fn = () => { ( new Fixture() )
           .test( "string", [ 9 ] ); };
-      expect( fn ).toThrowError( /Method: test, parameter bar: array element 0: Expected string but got number/ );
+      expect( fn ).toThrowError( /Method: test, parameter bar: array element 0: expected string but got number/ );
     });
   });
 });

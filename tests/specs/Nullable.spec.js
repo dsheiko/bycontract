@@ -12,7 +12,7 @@ describe( "Nullable/Non-nullable Type Validation", () => {
     });
     it( "throws when byContract( \"1\", \"?number\" )", () => {
       var fn = () => { byContract( "1", "?number" ); };
-      expect( fn ).toThrowError( /Expected nullable but got string/ );
+      expect( fn ).toThrowError( /expected nullable but got string/ );
     });
   });
    describe( "{!number}", () => {
@@ -22,11 +22,11 @@ describe( "Nullable/Non-nullable Type Validation", () => {
     });
     it( "throws when byContract( null, \"!number\" )", () => {
       var fn = () => { byContract( null, "!number" ); };
-      expect( fn ).toThrowError( /Expected non-nullable but got null/ );
+      expect( fn ).toThrowError( /expected non-nullable but got null/ );
     });
     it( "throws when byContract( \"1\", \"!number\" )", () => {
       var fn = () => { byContract( "1", "!number" ); };
-      expect( fn ).toThrowError( /Expected non-nullable but got string/ );
+      expect( fn ).toThrowError( /expected non-nullable but got string/ );
     });
   });
 });

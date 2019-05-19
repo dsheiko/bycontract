@@ -30,7 +30,7 @@ describe( "Entry/Exit Point Contract Validation", () => {
     it( "throws when arguments don't match the contracts", () => {
       var test = ( ...args ) => { byContract( args, [ "number", "string" ] ); },
           fn = () => { test( "1", "string" ); };
-      expect( fn ).toThrowError( /Expected number but got string/ );
+      expect( fn ).toThrowError( /expected number but got string/ );
     });
   });
   describe( "Function exit point", () => {
@@ -40,7 +40,7 @@ describe( "Entry/Exit Point Contract Validation", () => {
     });
     it( "return value is validated", () => {
       var fn = () => { return byContract( 1, "string" ); };
-      expect( fn ).toThrowError( /Expected string but got number/ );
+      expect( fn ).toThrowError( /expected string but got number/ );
     });
   });
 });

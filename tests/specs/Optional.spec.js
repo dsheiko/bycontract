@@ -12,7 +12,7 @@ describe( "Optional Parameter Validation", () => {
     });
     it( "throws when byContract( \"1\", \"number=\" )", () => {
       var fn = () => { byContract( "1", "number=" ); };
-      expect( fn ).toThrowError( /Expected number but got string/ );
+      expect( fn ).toThrowError( /expected number but got string/ );
     });
   });
 });

@@ -42,7 +42,7 @@ describe( "Basic Type Validation", () => {
     schemas.forEach(({ v, t }) => {
       it( `throws explanatory message when "${ t }" received but "string" expected`, () => {
         var fn = () => byContract( v, "string" );
-        expect( fn ).toThrowError( `Expected string but got ${ t }` );
+        expect( fn ).toThrowError( `expected string but got ${ t }` );
       });
     });
 
@@ -56,7 +56,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "number" ); };
-        expect( fn ).toThrowError( /Expected number but got/ );
+        expect( fn ).toThrowError( /expected number but got/ );
       });
     });
   });
@@ -69,7 +69,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", 1, {}, /preg/, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "array" ); };
-        expect( fn ).toThrowError( /Expected array but got/ );
+        expect( fn ).toThrowError( /expected array but got/ );
       });
     });
   });
@@ -81,7 +81,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", 1, {}, /preg/, [], true, null, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "undefined" ); };
-        expect( fn ).toThrowError( /Expected undefined but got/ );
+        expect( fn ).toThrowError( /expected undefined but got/ );
       });
     });
   });
@@ -93,7 +93,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, 1, null, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "boolean" ); };
-        expect( fn ).toThrowError( /Expected boolean but got/ );
+        expect( fn ).toThrowError( /expected boolean but got/ );
       });
     });
   });
@@ -105,7 +105,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, 1, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "function" ); };
-        expect( fn ).toThrowError( /Expected function but got/ );
+        expect( fn ).toThrowError( /expected function but got/ );
       });
     });
   });
@@ -117,7 +117,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, () => {}, 1 ].forEach(( val ) => {
         var fn = () => { byContract( val, "nan" ); };
-        expect( fn ).toThrowError( /Expected nan but got/ );
+        expect( fn ).toThrowError( /expected nan but got/ );
       });
     });
   });
@@ -129,7 +129,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, 1, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "null" ); };
-        expect( fn ).toThrowError( /Expected null but got/ );
+        expect( fn ).toThrowError( /expected null but got/ );
       });
     });
   });
@@ -141,7 +141,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", 1 ].forEach(( val ) => {
         var fn = () => { byContract( val, "object" ); };
-        expect( fn ).toThrowError( /Expected object but got/ );
+        expect( fn ).toThrowError( /expected object but got/ );
       });
     });
   });
@@ -153,7 +153,7 @@ describe( "Basic Type Validation", () => {
     it( "throws when incorrect", () => {
       [ "string", [], {}, 1, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
         var fn = () => { byContract( val, "regexp" ); };
-        expect( fn ).toThrowError( /Expected regexp but got/ );
+        expect( fn ).toThrowError( /expected regexp but got/ );
       });
     });
   });

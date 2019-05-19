@@ -25,7 +25,7 @@ function getType( val: any ): string {
   return basicType || typeof val;
 }
 
-function isValid( val:any, contract:any ): boolean {
+function isValid( val:any, contract:any, exceptions: string[] = [] ): boolean {
   try {
     validate( val, contract );
     return true;
@@ -33,6 +33,7 @@ function isValid( val:any, contract:any ): boolean {
     if ( !( ex instanceof Exception ) ) {
       throw ex;
     }
+    exceptions.push( ex.message );
     return false;
   }
 }
@@ -70,7 +71,7 @@ class Validate {
     if ( !is.string( this.contract ) ) {
       throw this.newException(
        "EINVALIDCONTRACT",
-       "Invalid parameters. Contract must be a string or a constructor function"
+       "invalid parameters. Contract must be a string or a constructor function"
      );
 
     }
@@ -97,6 +98,11 @@ class Validate {
       return true;
     }
 
+    // Case: byContract( val, "number[]" );
+    if ( this.assertStrictArrayJson() ) {
+      return true;
+    }
+
     // Case: byContract( val, "Array.<string>" );
     if ( this.assertStrictArray() ) {
       return;
@@ -110,7 +116,7 @@ class Validate {
     if ( !this.contract.match( /^[a-zA-Z0-9\._]+$/ ) ) {
       throw this.newException(
         "EINVALIDCONTRACT",
-        `Invalid contract ${ JSON.stringify( this.contract ) }`
+        `invalid contract ${ JSON.stringify( this.contract ) }`
       );
     }
 
@@ -119,7 +125,7 @@ class Validate {
     }
     throw this.newException(
       "EINVALIDCONTRACT",
-      `Invalid contract ${ JSON.stringify( this.contract ) }`
+      `invalid contract ${ JSON.stringify( this.contract ) }`
     );
   }
   /**
@@ -135,7 +141,7 @@ class Validate {
     }
     throw this.newException(
       "EINTERFACEVIOLATION",
-      `Expected instance of ${ scope[ this.contract ] } but got ${ stringify( this.val ) }` );
+      `expected instance of ${ scope[ this.contract ] } but got ${ stringify( this.val ) }` );
   }
 
   assertAny(): boolean {
@@ -155,7 +161,7 @@ class Validate {
     if ( !this.val || typeof this.val !== "object" ) {
       throw this.newException(
         "EINVALIDTYPE",
-        `Expected object literal but got ${ getType( this.val ) }`
+        `expected object literal but got ${ getType( this.val ) }`
       );
     }
 
@@ -165,7 +171,7 @@ class Validate {
       if ( !( prop in this.val ) && !isOptional( propContract ) ) {
         throw this.newException(
           "EMISSINGPROP",
-          `Missing required property #` + normalizeProp( prop, this.propPath )
+          `missing required property #` + normalizeProp( prop, this.propPath )
         );
       }
       validate( this.val[ prop ], propContract, normalizeProp( prop, this.propPath ) );
@@ -188,7 +194,7 @@ class Validate {
     if ( !( this.val instanceof this.contract ) ) {
      throw this.newException(
       "EINTERFACEVIOLATION",
-      `Expected instance of ${ stringify( this.contract ) } but got ${ stringify( this.val ) }` );
+      `expected instance of ${ stringify( this.contract ) } but got ${ stringify( this.val ) }` );
     }
     return true;
   }
@@ -220,7 +226,7 @@ class Validate {
      if ( !test( this.val ) ) {
        throw this.newException(
         "EINVALIDTYPE",
-        `Expected ${ vtype } but got ${ getType( this.val ) }` );
+        `expected ${ vtype } but got ${ getType( this.val ) }` );
      }
      return true;
   }
@@ -238,7 +244,7 @@ class Validate {
      }
      throw this.newException(
         "EINVALIDTYPE",
-        `Expected nullable but got ${ getType( this.val ) }` );
+        `expected nullable but got ${ getType( this.val ) }` );
   }
 
   /**
@@ -254,7 +260,7 @@ class Validate {
      }
      throw this.newException(
         "EINVALIDTYPE",
-        `Expected non-nullable but got ${ getType( this.val ) }` );
+        `expected non-nullable but got ${ getType( this.val ) }` );
   }
 
   /**
@@ -265,12 +271,40 @@ class Validate {
     if ( !this.contract.includes( "|" ) ) {
       return false;
     }
+    let exceptions = [];
     if ( !this.contract.split( "|" ).some(( contract: any ) => {
-      return isValid( this.val, contract );
+      return isValid( this.val, contract, exceptions );
+
+
     }) ) {
+      const tdesc = ( is.array( this.val ) || is.object( this.val ) )
+       ? "failed on each: " + exceptions.join( ", " ) : "got " + getType( this.val );
       throw this.newException(
         "EINVALIDTYPE",
-        `Expected ${ this.contract } but got ${ getType( this.val ) }` );
+        `expected ${ this.contract } but ${ tdesc }` );
+    }
+    return true;
+  }
+
+  /**
+   * Case: byContract( val, "string[]" );
+   * @returns boolean is resolved
+   */
+  assertStrictArrayJson(): boolean {
+    if ( !this.contract.endsWith( "[]" ) ) {
+      return false;
+    }
+    const contract = this.contract.replace( /\[\]$/, "" );
+    let elInx = 0;
+    try {
+      is.array( this.val ) && this.val.forEach(( v: any ) => {
+       validate( v, contract );
+       elInx++;
+      });
+    } catch ( err )  {
+      throw this.newException(
+        "EINVALIDTYPE",
+        `array element ${ elInx }: ${ err.message }` );
     }
     return true;
   }
@@ -288,7 +322,7 @@ class Validate {
     if ( !match ) {
       throw this.newException(
         "EINVALIDCONTRACT",
-        `Invalid contract ${ stringify( this.contract ) }`
+        `invalid contract ${ stringify( this.contract ) }`
       );
     }
     try {
@@ -317,7 +351,7 @@ class Validate {
     if ( !match ) {
        throw this.newException(
         "EINVALIDCONTRACT",
-        `Invalid contract ${ stringify( this.contract ) }`
+        `invalid contract ${ stringify( this.contract ) }`
       );
     }
     try {

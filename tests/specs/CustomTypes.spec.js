@@ -1,33 +1,18 @@
 import byContract from "../../dist/dev";
 
 describe( "Custom types", () => {
-//  describe( "byContract.typedef", () => {
-//// Covered by TypeScript...
-//    it( "does not byContract.typedef: Expected ()", () => {
-//      var fn = () => { return byContract.typedef(); };
-//       expect( fn ).toThrowError( /byContract.typedef: Expected string but got undefined/ );
-//    });
-//    it( "does not byContract.typedef: Expected (10)", () => {
-//      var fn = () => { return byContract.typedef( 10 ); };
-//       expect( fn ).toThrowError( /byContract.typedef: Expected/ );
-//    });
-//    it( "does not byContract.typedef: Expected (`Valid`)", () => {
-//      var fn = () => { return byContract.typedef( "Valid" ); };
-//       expect( fn ).toThrowError( /byContract.typedef: Expected/ );
-//    });
-//    it( "does not byContract.typedef: Expected (`Valid`, true)", () => {
-//      var fn = () => { return byContract.typedef( "Valid", true ); };
-//       expect( fn ).toThrowError( /byContract.typedef: Expected/ );
-//    });
-//    it( "does not byContract.typedef: Expected (`NumberLike`, `string|number`)", () => {
-//      var fn = () => { return byContract.typedef( "NumberLike", "string|number" ); };
-//       expect( fn ).not.toThrowError( /byContract.typedef: Expected/ );
-//    });
-//    it( "throws an exception when a primitive (`string`, `string|number`)", () => {
-//      var fn = () => { return byContract.typedef( "string", "string|number" ); };
-//      expect( fn ).toThrowError( /a primitive/ );
-//    });
-//  });
+  describe( "byContract.typedef", () => {
+    it( "throws when byContract.typedef: expected ()", () => {
+      var fn = () => { return byContract.typedef(); };
+       expect( fn ).toThrowError( /byContract.typedef: Argument #0: expected string but got undefined/ );
+    });
+    it( "throws when byContract.typedef: expected (10)", () => {
+      var fn = () => { return byContract.typedef( 10 ); };
+       expect( fn ).toThrowError( /byContract.typedef: Argument #0: expected string but got number/ );
+    });
+
+   
+  });
 
       describe( "with tag dictionary", () => {
         it( "doesn't throw on a valid contract", () => {
@@ -61,7 +46,7 @@ describe( "Custom types", () => {
             hasWaterbreathing: false
           },
           fn = () => { return byContract( superman, "#Hero" ); };
-          expect( fn ).toThrowError( /property #hasSuperhumanStrength Expected boolean but got number/ );
+          expect( fn ).toThrowError( /property #hasSuperhumanStrength expected boolean but got number/ );
         });
         it( "throws on incomplete interface implementation", () => {
           byContract.typedef( "#Hero", {
@@ -72,7 +57,7 @@ describe( "Custom types", () => {
             hasWaterbreathing: false
           },
           fn = () => { return byContract( superman, "#Hero" ); };
-          expect( fn ).toThrowError( /Missing required property #hasSuperhumanStrength/ );
+          expect( fn ).toThrowError( /missing required property #hasSuperhumanStrength/ );
         });
       });
     });
@@ -91,7 +76,7 @@ describe( "Custom types", () => {
       it( "doesn't throw on a# valid contract", () => {
         byContract.typedef( "NumberLike", "number|string" );
         var fn = () => { return byContract( true, "#NumberLike" ); };
-        //pect( fn ).toThrowError( /Missing required property #hasSuperhumanStrength/ );
+        expect( fn ).toThrowError( /expected number|string but got boolean/ );
       });
   });
 

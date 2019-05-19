@@ -12,7 +12,7 @@ import byContract, { Exception } from "../../dist/dev";
     });
     it( "throws when byContract( {}, \"number|string\" )", () => {
       var fn = () => { byContract( {}, "number|string" ); };
-      expect( fn ).toThrowError( /Expected number|string but got object/ );
+      expect( fn ).toThrowError( /expected number|string but got object/ );
     });
   });
 });

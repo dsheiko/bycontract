@@ -24,7 +24,7 @@ describe( "Interface Validation", () => {
       class Foo{}
       const instance = new MyClass(),
             fn = () => { byContract( instance, Foo ); };
-      expect( fn ).toThrowError( /Expected instance of Foo but got instance of MyClass/ );
+      expect( fn ).toThrowError( /expected instance of Foo but got instance of MyClass/ );
     });
 
     it( "doesn't throw when byContract( [ instance ], \"Array.<Date>\" )", () => {
@@ -52,14 +52,14 @@ describe( "Interface Validation", () => {
         "Error": Error
       }).forEach(( pair ) => {
         const fn = () => { byContract( "node", pair[ 1 ] ); };
-        expect( fn ).toThrowError( `Expected instance of ${ pair[ 0 ] } but got string` );
+        expect( fn ).toThrowError( `expected instance of ${ pair[ 0 ] } but got string` );
       });
     });
 
     it( "throws exception with normalized message when contract is an interface (class)", () => {
       class FooInterface {}
       expect( () => byContract( "node", FooInterface ) )
-        .toThrowError( `Expected instance of FooInterface but got string` );
+        .toThrowError( `expected instance of FooInterface but got string` );
     });
 
   });
