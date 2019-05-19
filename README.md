@@ -4,10 +4,7 @@ ByContract
 [![Build Status](https://travis-ci.org/dsheiko/bycontract.png)](https://travis-ci.org/dsheiko/bycontract)
 [![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-`byContract` is a small validation library (1,1 KB gzip) that allows you to benefit from [Design by Contract programming](https://en.wikipedia.org/wiki/Design_by_contract)
-in your JavaScript code. The lib uses [JSDoc expression](http://usejsdoc.org/tags-type.html) for a contract. Therefore you
-likely already familiar with the syntax. The library is implemented as a UMD-compatible module, so you can use as CommonJs and AMD.
-Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
+`byContract` is a small argument validation library based on [JSDOC syntax](https://jsdoc.app/tags-type.html). The library is avaiable as a UMD-compatible module. Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
 
 * [Getting Started](#Getting-Started)
 * [Contract Expressions](#Contract-Expressions)
@@ -19,11 +16,17 @@ Besides, it exposes `byContract` function globally when `window` object availabl
 <a id="Getting-Started"></a>
 ## Getting Started
 
+
+```javascript
+import byContract from "byContract".
+byContract = require
+
+```
+
 ##### Test value against a contract
 ```javascript
 byContract( value, "JSDOC-EXPRESSION" ); // ok or exception
-// or
-byContract( value, "JSDOC-EXPRESSION", "text" ); // exception message prefixed with `text`
+
 ```
 
 ##### Test set of values against a contract list
@@ -33,10 +36,6 @@ byContract( [ value, value ], [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // 
 byContract( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
 ```
 
-##### Validate value against a contract
-```javascript
-byContract.validate( value, "JSDOC-EXPRESSION" );  // true or false
-```
 
 ##### Usage example: ensure the contract
 
