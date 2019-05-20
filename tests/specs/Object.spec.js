@@ -1,9 +1,9 @@
-import byContract, { Exception } from "../../dist/dev";
+import { validate } from "../../dist/dev";
 
 describe( "Object Validation", () => {
   describe( "Flat object", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( { foo: "value", bar: 100 }, {
+      var fn = () => { validate( { foo: "value", bar: 100 }, {
           foo: "string",
           bar: "number"
       }); };
@@ -11,7 +11,7 @@ describe( "Object Validation", () => {
     });
 
     it( "throws when when incorrect", () => {
-     var fn = () => { byContract( { foo: "value", bar: 100 }, {
+     var fn = () => { validate( { foo: "value", bar: 100 }, {
           foo: "string",
           bar: "null"
       }); };
@@ -22,7 +22,7 @@ describe( "Object Validation", () => {
 
   describe( "Flat object with optional", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( { foo: "value" }, {
+      var fn = () => { validate( { foo: "value" }, {
           foo: "string",
           bar: "number="
       }); };
@@ -33,7 +33,7 @@ describe( "Object Validation", () => {
 
   describe( "Dimensional object", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract(
+      var fn = () => { validate(
         {
           foo: {
             bar: {
@@ -52,7 +52,7 @@ describe( "Object Validation", () => {
     });
 
     it( "throws when when incorrect", () => {
-      var fn = () => { byContract(
+      var fn = () => { validate(
         {
           foo: {
             bar: {
@@ -74,7 +74,7 @@ describe( "Object Validation", () => {
 
    describe( "Dimensional object from argument list", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract(
+      var fn = () => { validate(
         [{
           foo: {
             bar: {
@@ -93,7 +93,7 @@ describe( "Object Validation", () => {
     });
 
     it( "throws when when incorrect", () => {
-      var fn = () => { byContract(
+      var fn = () => { validate(
         [{
           foo: {
             bar: {

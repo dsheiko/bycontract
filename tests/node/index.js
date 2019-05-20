@@ -1,18 +1,17 @@
-const byContract = require( "../../dist/index.js" ).default;
+const { validate, config } = require( "bycontract" );
 
-byContract( 1, "number|string" );
-console.log( `byContract( 1, "number|string" ); - fine` );
+validate( 1, "number|string" );
+console.log( `validate( 1, "number|string" ); - fine` );
 try {
-  byContract( null, "number|string" );
+  validate( null, "number|string" );
 } catch ( err ) {
-  console.error( err );
-  console.log( `byContract( null, "number|string" ); - throws ${ err.message }` );
+  console.log( `validate( null, "number|string" ); - throws ${ err.message }` );
 }
-byContract.isEnabled = false;
+config({ enable: false });
 try {
-  byContract( null, "number|string" );
-  console.log( `byContract( null, "number|string" ); `
-    + `- throws nothing when byContract.isEnabled = false` );
+  validate( null, "number|string" );
+  console.log( `validate( null, "number|string" ); `
+    + `- throws nothing when validate.isEnabled = false` );
 } catch ( err ) {
   console.log( `fail` );
 }

@@ -1,9 +1,7 @@
-import { Indexable } from "./interfaces";
 import Exception from "./Exception";
-import validate from "./Validate";
+import verify from "./verify";
 import is from "./is";
-
-const scope:Indexable = ( typeof window !== "undefined" ? window : global );
+import scope from "./scope";
 
 const customTypes: any = {};
 
@@ -13,6 +11,13 @@ function err( msg: string, callContext: string, argInx?: number ) {
   return `${prefix}${ loc }${ msg }`;
 }
 
+interface Options {
+  enable?: boolean
+}
+
+function config( options: Options ): void {
+  byContract.options = { ...byContract.options, ...options };
+}
 
 /**
  * Document a custom type
@@ -20,7 +25,7 @@ function err( msg: string, callContext: string, argInx?: number ) {
  * @param {string|Object.<string, *>} tagDic
  */
 function typedef( typeName: string, tagDic: any ){
-  byContract([ typeName, tagDic ], [ "string", "*" ], "byContract.typedef" );
+  validate([ typeName, tagDic ], [ "string", "*" ], "byContract.typedef" );
   if ( typeName in is ) {
     throw new Exception( "EINVALIDPARAM", "Custom type must not override a primitive" );
   }
@@ -32,9 +37,9 @@ function typedef( typeName: string, tagDic: any ){
  * @param {String|String[]|Function|Function[]} values
  * @param {string} [callContext]
  */
-export default function byContract( values: any | any[], contracts: any | any[], callContext?: string ){
+function validate( values: any | any[], contracts: any | any[], callContext?: string ){
   // Disabled on production, ignore
-  if ( !byContract.isEnabled ) {
+  if ( !byContract.options.enable ) {
     return values;
   }
   if ( typeof contracts === "undefined" ) {
@@ -55,21 +60,21 @@ export default function byContract( values: any | any[], contracts: any | any[],
       if ( !( inx in values ) ) {
         throw new Exception( "EMISSINGARG", err( "Missing required agument", callContext ) );
       }
-      byContract.validate( values[ inx ], c, callContext, inx );
+      validateValue( values[ inx ], c, callContext, inx );
     });
     return values;
   }
-  byContract.validate( values, contracts, callContext );
+  validateValue( values, contracts, callContext );
   return values;
 }
 
-byContract.validate = ( value: any, contract: any, callContext?: string, inx?: number ) => {
+function validateValue( value: any, contract: any, callContext?: string, inx?: number ) {
   try {
     if ( contract in  customTypes ) {
-      return validate( value, customTypes[ contract ] );
+      return verify( value, customTypes[ contract ] );
     }
     // Test a single value against contract
-    validate( value, contract );
+    verify( value, contract );
   } catch ( ex ) {
     if ( !( ex instanceof Exception ) ) {
       throw ex;
@@ -78,9 +83,14 @@ byContract.validate = ( value: any, contract: any, callContext?: string, inx?: n
   }
 }
 
-byContract.Exception = Exception;
-byContract.isEnabled = true;
-byContract.typedef = typedef;
+const byContract = {
+  options: {
+    enable: true
+  },
+  Exception: Exception,
+  validate: validate,
+  typedef: typedef,
+  config: config
+}
 
-scope.byContract = byContract;
-
+export default byContract;

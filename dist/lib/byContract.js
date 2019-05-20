@@ -4,13 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Exception_1 = __importDefault(require("./Exception"));
-const Validate_1 = __importDefault(require("./Validate"));
+const verify_1 = __importDefault(require("./verify"));
 const is_1 = __importDefault(require("./is"));
-const scope = (typeof window !== "undefined" ? window : global);
 const customTypes = {};
 function err(msg, callContext, argInx) {
     const loc = typeof argInx !== "undefined" ? `Argument #${argInx}: ` : ``, prefix = callContext ? callContext + ": " : "";
     return `${prefix}${loc}${msg}`;
+}
+function config(options) {
+    byContract.options = Object.assign({}, byContract.options, options);
 }
 /**
  * Document a custom type
@@ -18,7 +20,7 @@ function err(msg, callContext, argInx) {
  * @param {string|Object.<string, *>} tagDic
  */
 function typedef(typeName, tagDic) {
-    byContract([typeName, tagDic], ["string", "*"], "byContract.typedef");
+    validate([typeName, tagDic], ["string", "*"], "byContract.typedef");
     if (typeName in is_1.default) {
         throw new Exception_1.default("EINVALIDPARAM", "Custom type must not override a primitive");
     }
@@ -30,9 +32,9 @@ function typedef(typeName, tagDic) {
  * @param {String|String[]|Function|Function[]} values
  * @param {string} [callContext]
  */
-function byContract(values, contracts, callContext) {
+function validate(values, contracts, callContext) {
     // Disabled on production, ignore
-    if (!byContract.isEnabled) {
+    if (!byContract.options.enable) {
         return values;
     }
     if (typeof contracts === "undefined") {
@@ -51,21 +53,20 @@ function byContract(values, contracts, callContext) {
             if (!(inx in values)) {
                 throw new Exception_1.default("EMISSINGARG", err("Missing required agument", callContext));
             }
-            byContract.validate(values[inx], c, callContext, inx);
+            validateValue(values[inx], c, callContext, inx);
         });
         return values;
     }
-    byContract.validate(values, contracts, callContext);
+    validateValue(values, contracts, callContext);
     return values;
 }
-exports.default = byContract;
-byContract.validate = (value, contract, callContext, inx) => {
+function validateValue(value, contract, callContext, inx) {
     try {
         if (contract in customTypes) {
-            return Validate_1.default(value, customTypes[contract]);
+            return verify_1.default(value, customTypes[contract]);
         }
         // Test a single value against contract
-        Validate_1.default(value, contract);
+        verify_1.default(value, contract);
     }
     catch (ex) {
         if (!(ex instanceof Exception_1.default)) {
@@ -73,8 +74,14 @@ byContract.validate = (value, contract, callContext, inx) => {
         }
         throw new Exception_1.default(ex.code, err(ex.message, callContext, inx));
     }
+}
+const byContract = {
+    options: {
+        enable: true
+    },
+    Exception: Exception_1.default,
+    validate: validate,
+    typedef: typedef,
+    config: config
 };
-byContract.Exception = Exception_1.default;
-byContract.isEnabled = true;
-byContract.typedef = typedef;
-scope.byContract = byContract;
+exports.default = byContract;

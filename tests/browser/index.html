@@ -15,20 +15,19 @@
   <script src="./byContract.min.js"></script>
   <script>
     const con = document.querySelector( ".console" );
-    byContract( 1, "number|string" );
-    con.insertAdjacentHTML( 'beforeend', `<p>byContract( 1, "number|string" ); - fine</p>` );
+    byContract.validate( 1, "number|string" );
+    con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( 1, "number|string" ); - fine</p>` );
     try {
-      throw new Error("gogogg");
-      byContract( null, "number|string" );
+      byContract.validate( null, "number|string" );
     } catch ( err ) {
       console.error( err );
-      con.insertAdjacentHTML( 'beforeend', `<p>byContract( null, "number|string" ); - throws ${ err.message }</p>` );
+      con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( null, "number|string" ); - throws ${ err.message }</p>` );
     }
-    byContract.isEnabled = false;
+    byContract.config({ enable: false });
     try {
-      byContract( null, "number|string" );
-      con.insertAdjacentHTML( 'beforeend', `<p>byContract( null, "number|string" ); `
-        + `- throws nothing when byContract.isEnabled = false</p>` );
+      byContract.validate( null, "number|string" );
+      con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( null, "number|string" ); `
+        + `- throws nothing when byContract.validate.isEnabled = false</p>` );
     } catch ( err ) {
       con.insertAdjacentHTML( 'beforeend', `<p>fail</p>` );
     }

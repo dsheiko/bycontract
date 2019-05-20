@@ -1,21 +1,21 @@
-import byContract from "../../dist/dev";
+import { validate, config, typedef } from "../../dist/dev";
 
-describe( "isEnabled Validation", () => {
+describe( "Enable Validation", () => {
   beforeEach(() => {
-    byContract.isEnabled = false;
+    config({ enable: false });
   });
   afterEach(() => {
-    byContract.isEnabled = true;
+    config({ enable: true });
   });
   describe( "Basic Types", () => {
     it( "throws no exception on contract violation", () => {
-      var fn = () => { byContract( 10, "string"); };
+      var fn = () => { validate( 10, "string"); };
       expect( fn ).not.toThrow();
     });
   });
   describe( "Custom Types", () => {
       it( "throws no exception on contract violation", () => {
-        byContract.typedef( "Hero", {
+        typedef( "Hero", {
           hasSuperhumanStrength: "boolean",
           hasWaterbreathing: "boolean"
         });
@@ -23,7 +23,7 @@ describe( "isEnabled Validation", () => {
           hasSuperhumanStrength: true,
           hasWaterbreathing: 10
         };
-        var fn = () => { byContract( superman, "Hero" ); };
+        var fn = () => { validate( superman, "Hero" ); };
         expect( fn ).not.toThrow();
       });
   });

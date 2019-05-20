@@ -27,7 +27,7 @@ function getType( val: any ): string {
 
 function isValid( val:any, contract:any, exceptions: string[] = [] ): boolean {
   try {
-    validate( val, contract );
+    verify( val, contract );
     return true;
   } catch ( ex ) {
     if ( !( ex instanceof Exception ) ) {
@@ -38,7 +38,7 @@ function isValid( val:any, contract:any, exceptions: string[] = [] ): boolean {
   }
 }
 
-export default function validate( val:any, contract:any, propPath: string = "" ): void {
+export default function verify( val:any, contract:any, propPath: string = "" ): void {
   const lib = new Validate( val, contract, propPath );
   lib.validate();
 }
@@ -174,7 +174,7 @@ class Validate {
           `missing required property #` + normalizeProp( prop, this.propPath )
         );
       }
-      validate( this.val[ prop ], propContract, normalizeProp( prop, this.propPath ) );
+      verify( this.val[ prop ], propContract, normalizeProp( prop, this.propPath ) );
     });
 
     return true;
@@ -271,7 +271,7 @@ class Validate {
     if ( !this.contract.includes( "|" ) ) {
       return false;
     }
-    let exceptions = [];
+    let exceptions: string[] = [];
     if ( !this.contract.split( "|" ).some(( contract: any ) => {
       return isValid( this.val, contract, exceptions );
 
@@ -302,7 +302,7 @@ class Validate {
     }
     try {
       is.array( this.val ) && this.val.forEach(( v: any ) => {
-       validate( v, contract );
+       verify( v, contract );
        elInx++;
       });
     } catch ( err )  {
@@ -336,7 +336,7 @@ class Validate {
     try {
 
       is.array( this.val ) && this.val.forEach(( v: any ) => {
-       validate( v, match[ 1 ] );
+       verify( v, match[ 1 ] );
        elInx++;
       });
     } catch ( err )  {
@@ -370,7 +370,7 @@ class Validate {
     try {
       is.object( this.val ) && Object.keys( this.val ).forEach(( key ) => {
         prop = key;
-        validate( this.val[ key ], match[ 2 ] );
+        verify( this.val[ key ], match[ 2 ] );
       });
     } catch ( err )  {
       throw this.newException(

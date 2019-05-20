@@ -3,7 +3,7 @@
   "description": "Design by Contract",
   "version": "2.0.0",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
-  "main": "dist/index.js",
+  "main": "dist/bycontract.dev.js",
   "typings": "./index.d.ts",
   "scripts": {
     "test": "jest --config=jest.cfg.unit.js",
@@ -26,7 +26,6 @@
     "@babel/preset-env": "^7.4.4",
     "@types/jest": "^24.0.13",
     "@types/node": "^12.0.2",
-    "cross-env": "^5.2.0",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
     "terser-webpack-plugin": "^1.2.4",

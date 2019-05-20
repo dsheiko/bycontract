@@ -1,35 +1,35 @@
-import byContract, { Exception } from "../../dist/dev";
+import { validate } from "../../dist/dev";
 
 describe( "Interface Validation", () => {
   describe( "{myNamespace.MyClass}", () => {
 
-    it( "doesn't throw when byContract( instance, Constructor )", () => {
+    it( "doesn't throw when validate( instance, Constructor )", () => {
       class MyClass{}
       const instance = new MyClass(),
-          fn = () => { byContract( instance, MyClass ); };
+          fn = () => { validate( instance, MyClass ); };
       expect( fn ).not.toThrow();
     });
-    it( "doesn't throw when byContract( instance, Date )", () => {
+    it( "doesn't throw when validate( instance, Date )", () => {
       var instance = new Date(),
-          fn = () => { byContract( instance, Date ); };
+          fn = () => { validate( instance, Date ); };
       expect( fn ).not.toThrow();
     });
-    it( "throw when byContract( instance, \"Date\" )", () => {
+    it( "throw when validate( instance, \"Date\" )", () => {
       var instance = new Date(),
-          fn = () => { byContract( instance, "Date" ); };
+          fn = () => { validate( instance, "Date" ); };
       expect( fn ).not.toThrow();
     });
-    it( "throws when byContract( foregnInstance, Class )", () => {
+    it( "throws when validate( foregnInstance, Class )", () => {
       class MyClass{}
       class Foo{}
       const instance = new MyClass(),
-            fn = () => { byContract( instance, Foo ); };
+            fn = () => { validate( instance, Foo ); };
       expect( fn ).toThrowError( /expected instance of Foo but got instance of MyClass/ );
     });
 
-    it( "doesn't throw when byContract( [ instance ], \"Array.<Date>\" )", () => {
+    it( "doesn't throw when validate( [ instance ], \"Array.<Date>\" )", () => {
       var instance = new Date(),
-      fn = () => { byContract( [ instance ], "Array.<Date>" ); };
+      fn = () => { validate( [ instance ], "Array.<Date>" ); };
       expect( fn ).not.toThrow();
     });
 
@@ -51,14 +51,14 @@ describe( "Interface Validation", () => {
         "Symbol": Symbol,
         "Error": Error
       }).forEach(( pair ) => {
-        const fn = () => { byContract( "node", pair[ 1 ] ); };
+        const fn = () => { validate( "node", pair[ 1 ] ); };
         expect( fn ).toThrowError( `expected instance of ${ pair[ 0 ] } but got string` );
       });
     });
 
     it( "throws exception with normalized message when contract is an interface (class)", () => {
       class FooInterface {}
-      expect( () => byContract( "node", FooInterface ) )
+      expect( () => validate( "node", FooInterface ) )
         .toThrowError( `expected instance of FooInterface but got string` );
     });
 

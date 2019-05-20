@@ -1,11 +1,11 @@
-import byContract, { Exception } from "../../dist/dev";
+import { validate } from "../../dist/dev";
 
 describe( "Basic Type Validation", () => {
 
   describe( "{*}", () => {
     it( "does not throw when correct", () => {
       [ "string", [], {}, /preg/, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "*" ); };
+        var fn = () => { validate( val, "*" ); };
         expect( fn ).not.toThrow();
       });
     });
@@ -13,16 +13,16 @@ describe( "Basic Type Validation", () => {
   });
 
   describe( "{string}", () => {
-    it( "doesn't throw when byContract( \"string\", \"String\" )", () => {
-      var fn = () => { byContract( "string", "String" ); };
+    it( "doesn't throw when validate( \"string\", \"String\" )", () => {
+      var fn = () => { validate( "string", "String" ); };
       expect( fn ).not.toThrow();
     });
-    it( "doesn't throw when byContract( \"string\", \"string\" )", () => {
-      var fn = () => { byContract( "string", "string" ); };
+    it( "doesn't throw when validate( \"string\", \"string\" )", () => {
+      var fn = () => { validate( "string", "string" ); };
       expect( fn ).not.toThrow();
     });
-    it( "doesn't throw when byContract( [ \"string\" ], [ \"string\" ] )", () => {
-      var fn = () => { byContract( [ "string" ], [ "string" ] ); };
+    it( "doesn't throw when validate( [ \"string\" ], [ \"string\" ] )", () => {
+      var fn = () => { validate( [ "string" ], [ "string" ] ); };
       expect( fn ).not.toThrow();
     });
 
@@ -41,7 +41,7 @@ describe( "Basic Type Validation", () => {
 
     schemas.forEach(({ v, t }) => {
       it( `throws explanatory message when "${ t }" received but "string" expected`, () => {
-        var fn = () => byContract( v, "string" );
+        var fn = () => validate( v, "string" );
         expect( fn ).toThrowError( `expected string but got ${ t }` );
       });
     });
@@ -49,13 +49,17 @@ describe( "Basic Type Validation", () => {
   });
 
   describe( "{number}", () => {
-    it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( 1, "number" ); };
+    it( "doesn't throw when correct (value)", () => {
+      var fn = () => { validate( 1, "number" ); };
       expect( fn ).not.toThrow();
+    });
+    it( "doesn't throw when correct (arguments)", () => {
+       var fn = ( ...args ) => validate( args, [ "number" ] );
+      expect( () => fn( 1 ) ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "number" ); };
+        var fn = () => { validate( val, "number" ); };
         expect( fn ).toThrowError( /expected number but got/ );
       });
     });
@@ -63,96 +67,104 @@ describe( "Basic Type Validation", () => {
 
   describe( "{array}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( [], "array" ); };
+      var fn = () => { validate( [], "array" ); };
       expect( fn ).not.toThrow();
+    });
+    it( "doesn't throw when correct (arguments)", () => {
+       var fn = ( ...args ) => validate( args, [ "array" ] );
+      expect( () => fn( [1, 2, 3] ) ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", 1, {}, /preg/, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "array" ); };
+        var fn = () => { validate( val, "array" ); };
         expect( fn ).toThrowError( /expected array but got/ );
       });
     });
   });
   describe( "{undefined}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( undefined, "undefined" ); };
+      var fn = () => { validate( undefined, "undefined" ); };
       expect( fn ).not.toThrow();
+    });
+    it( "doesn't throw when correct (arguments)", () => {
+       var fn = ( ...args ) => validate( args, [ "undefined" ] );
+      expect( () => fn( undefined ) ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", 1, {}, /preg/, [], true, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "undefined" ); };
+        var fn = () => { validate( val, "undefined" ); };
         expect( fn ).toThrowError( /expected undefined but got/ );
       });
     });
   });
   describe( "{boolean}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( false, "boolean" ); };
+      var fn = () => { validate( false, "boolean" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, 1, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "boolean" ); };
+        var fn = () => { validate( val, "boolean" ); };
         expect( fn ).toThrowError( /expected boolean but got/ );
       });
     });
   });
   describe( "{function}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( () => {}, "function" ); };
+      var fn = () => { validate( () => {}, "function" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, 1, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "function" ); };
+        var fn = () => { validate( val, "function" ); };
         expect( fn ).toThrowError( /expected function but got/ );
       });
     });
   });
   describe( "{nan}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( NaN, "nan" ); };
+      var fn = () => { validate( NaN, "nan" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, null, () => {}, 1 ].forEach(( val ) => {
-        var fn = () => { byContract( val, "nan" ); };
+        var fn = () => { validate( val, "nan" ); };
         expect( fn ).toThrowError( /expected nan but got/ );
       });
     });
   });
   describe( "{null}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( null, "null" ); };
+      var fn = () => { validate( null, "null" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, /preg/, undefined, true, 1, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "null" ); };
+        var fn = () => { validate( val, "null" ); };
         expect( fn ).toThrowError( /expected null but got/ );
       });
     });
   });
   describe( "{object}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( {}, "object" ); };
+      var fn = () => { validate( {}, "object" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", 1 ].forEach(( val ) => {
-        var fn = () => { byContract( val, "object" ); };
+        var fn = () => { validate( val, "object" ); };
         expect( fn ).toThrowError( /expected object but got/ );
       });
     });
   });
   describe( "{regexp}", () => {
     it( "doesn't throw when correct", () => {
-      var fn = () => { byContract( /regexp/, "regexp" ); };
+      var fn = () => { validate( /regexp/, "regexp" ); };
       expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       [ "string", [], {}, 1, undefined, true, null, () => {}, NaN ].forEach(( val ) => {
-        var fn = () => { byContract( val, "regexp" ); };
+        var fn = () => { validate( val, "regexp" ); };
         expect( fn ).toThrowError( /expected regexp but got/ );
       });
     });

@@ -1,10 +1,10 @@
-import byContract, { contract, Exception } from "../../dist/dev";
+import { validateJsdoc } from "../../dist/dev";
 
-describe( "@contract", () => {
+describe( "@validateJsdoc", () => {
   describe( "{string}", () => {
     it( "doesn't throw when correct", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         test( arg ){}
@@ -14,7 +14,7 @@ describe( "@contract", () => {
     });
     it( "throws when when incorrect", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         test( arg ){}
@@ -25,7 +25,7 @@ describe( "@contract", () => {
     });
     it( "doesn't lose the return value", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         test( arg ){ return arg; }
@@ -38,7 +38,7 @@ describe( "@contract", () => {
           this.quiz = "quiz";
         }
         baz(){ return "baz"; }
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         test( arg ){ return this.baz(); }
@@ -50,11 +50,11 @@ describe( "@contract", () => {
   });
 });
 
-describe( "@contract <static>", () => {
+describe( "@validateJsdoc <static>", () => {
   describe( "{string}", () => {
     it( "doesn't throw when correct", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         static test( arg ){}
@@ -64,7 +64,7 @@ describe( "@contract <static>", () => {
     });
     it( "throws when when incorrect", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string} foo
         ` )
         static test( arg ){}
@@ -75,11 +75,11 @@ describe( "@contract <static>", () => {
   });
 });
 
-describe( "@contract multi-params and returns", () => {
+describe( "@validateJsdoc multi-params and returns", () => {
   describe( "{string}", () => {
     it( "doesn't throw when correct", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string|number} foo
           @param {Array.<string>} bar
           @returns {string}
@@ -92,7 +92,7 @@ describe( "@contract multi-params and returns", () => {
     });
     it( "throws when incorrect @returns", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string|number} foo
           @param {Array.<string>} bar
           @returns {string}
@@ -105,7 +105,7 @@ describe( "@contract multi-params and returns", () => {
     });
     it( "throws when incorrect @param", () => {
       class Fixture {
-        @contract( `
+        @validateJsdoc( `
           @param {string|number} foo
           @param {Array.<string>} bar
           @returns {string}

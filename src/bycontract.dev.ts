@@ -1,10 +1,22 @@
 import byContract from "./lib/byContract";
 import { validateJsDocString, parse } from "./lib/jsDoc";
+import scope from "./lib/scope";
 
+export const validate = byContract.validate;
 export const Exception = byContract.Exception;
-export default byContract;
+export const typedef = byContract.typedef;
+export const config = byContract.config;
 
-export function jsdoc( strings: string[], ...rest: any[] ): string {
+/**
+ * Template tag flavor
+ * @param {string[]} strings
+ * @param {...any} rest
+ * @returns {string}
+ */
+export function validateContract( strings: string[], ...rest: any[] ): string {
+  if ( !byContract.options.enable ) {
+      return "ignore";
+  }
   strings
     .map( line => line.trim().replace( /[\r\n]/, "" ) )
     .filter( line => line.length )
@@ -18,7 +30,7 @@ export function jsdoc( strings: string[], ...rest: any[] ): string {
          ` );
       }
       try {
-        byContract( rest[ inx ], contract );
+        validate( rest[ inx ], contract );
       } catch ( err ) {
         throw new Exception( err.code, `Argument #${ inx }: ` + err.message );
       }
@@ -27,13 +39,18 @@ export function jsdoc( strings: string[], ...rest: any[] ): string {
   return "ignore";
 }
 
-export function contract( contracts: string ) {
+/**
+ * Template tag flavor
+ * @param {string} contracts
+ * @returns {function}
+ */
+export function validateJsdoc( contracts: string ) {
 
   return function( target:Object|Function, propKey:string, descriptor:PropertyDescriptor ):PropertyDescriptor{
     const callback = descriptor.value,
           { params, returns } = validateJsDocString( contracts );
 
-    if ( !byContract.isEnabled ) {
+    if ( !byContract.options.enable ) {
       return descriptor;
     }
 
@@ -42,7 +59,7 @@ export function contract( contracts: string ) {
         const args = Array.from( arguments );
         params.forEach( ( param, inx ) => {
           try {
-            byContract( args[ inx ], param.contract );
+            validate( args[ inx ], param.contract );
           } catch ( err ) {
             throw new Exception( err.code, `Method: ${ propKey }, parameter ${ param.name }: ` + err.message );
           }
@@ -50,7 +67,7 @@ export function contract( contracts: string ) {
 
         let retVal = callback.apply( this, args );
         try {
-          returns && byContract( retVal, returns.contract );
+          returns && validate( retVal, returns.contract );
         } catch ( err ) {
           throw new Exception( err.code, `Method: ${ propKey }, return value: ` + err.message );
           }
@@ -59,3 +76,5 @@ export function contract( contracts: string ) {
     });
   };
 }
+
+scope.byContract = { ...byContract, validateJsdoc, validateContract };

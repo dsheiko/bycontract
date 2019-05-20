@@ -17,6 +17,7 @@
     "outDir": "./dist/"
   },
   "files": [
-    "./src/dev.ts"
+    "./src/bycontract.dev.ts",
+    "./src/bycontract.prod.ts"
   ]
 }

@@ -2,7 +2,7 @@ const path = require( "path" ),
       TerserPlugin = require( "terser-webpack-plugin" );
 
 module.exports = {
-  entry: "./src/dev.ts",
+  entry: "./src/bycontract.dev.ts",
   mode: "production",
   watchOptions: {
      ignored: /node_modules/
