@@ -13,11 +13,10 @@
   },
   "keywords": [
     "validation",
-    "precondition",
-    "design by contract",
-    "contract",
-    "interface",
-    "javascript"
+    "validate",
+    "argument validation",
+    "aproba",
+    "validatejs"
   ],
   "dependencies": {},
   "devDependencies": {
