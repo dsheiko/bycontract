@@ -45,11 +45,11 @@ function pdf( path, w, h, options, callback ) {
 ```js
 function pdf( path, w, h, options, callback ) {
   validateContract`
-    {string}         ${ path }
-    {!number}        ${ w }
-    {!number}        ${ h }
+    {string}          ${ path }
+    {!number}         ${ w }
+    {!number}         ${ h }
     {#PdfOptionsType} ${ options }
-    {function=}      ${ callback }
+    {function=}       ${ callback }
     `;
 }
 ```
