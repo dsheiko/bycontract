@@ -15,5 +15,15 @@ describe( "Optional Parameter Validation", () => {
       expect( fn ).toThrowError( /expected number but got string/ );
     });
   });
+  describe( "arguments", () => {
+    it( "does not throw when missing", () => {
+      var fn = function() { validate( arguments, [ "number", "function=" ] ); };
+      expect( () => fn( 1 ) ).not.toThrow();
+    });
+    it( "throws when invalid type", () => {
+      var fn = function() { validate( arguments, [ "number", "function=" ] ); };
+      expect( () => fn( 1, 1 ) ).toThrowError( /Argument #1: expected function but got number/ );
+    });
+  });
 });
 

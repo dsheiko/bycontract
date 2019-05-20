@@ -57,7 +57,7 @@ function validate( values: any | any[], contracts: any | any[], callContext?: st
         " the first parameter (values) must an array too", callContext ) );
     }
     contracts.forEach(( c: any, inx: number ) => {
-      if ( !( inx in values ) ) {
+      if ( !( inx in values ) && !c.match( /=$/ ) ) {
         throw new Exception( "EMISSINGARG", err( "Missing required agument", callContext ) );
       }
       validateValue( values[ inx ], c, callContext, inx );
@@ -90,7 +90,8 @@ const byContract = {
   Exception: Exception,
   validate: validate,
   typedef: typedef,
-  config: config
+  config: config,
+  is: is
 }
 
 export default byContract;

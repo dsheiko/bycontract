@@ -8,6 +8,7 @@ exports.validate = () => { };
 exports.Exception = Error;
 exports.typedef = () => { };
 exports.config = () => { };
+exports.is = {};
 function validateContract(strings, ...rest) {
     return "ignore";
 }

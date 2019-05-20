@@ -43,4 +43,25 @@ describe( "jsdoc", () => {
     expect( fn ).toThrowError( /Argument #0: expected string|number but got null/ );
   });
 
+  it ( "throws with invalid jsodc", () => {
+    typedef("#PdfOptionsType", {
+      scale: "number"
+    });
+
+    function pdf( path, w, h, options, callback ) {
+      validateContract`
+        <string>         ${ path }
+        <!number>        ${ w }
+        <!number>        ${ h }
+        <#PdfOptionsType> ${ options }
+        <function=>      ${ callback }
+        `;
+    }
+
+    expect( () => pdf("/var/log/", 1, 1, { scale: 1 }, () => {} ) )
+      .toThrowError( /invalid JSDOC. Expected syntax/ );
+
+
+  });
+
 });

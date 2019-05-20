@@ -12,7 +12,7 @@ const Exception_1 = __importDefault(require("./Exception"));
 function parse(line) {
     const iLeft = line.indexOf("{"), iRight = line.indexOf("}");
     if (iLeft === -1 || iRight === -1) {
-        throw new Exception_1.default("EINVALIDJSDOC", "invalid JSDOC. Expected syntax: { exp } param");
+        throw new Exception_1.default("EINVALIDJSDOC", `invalid JSDOC. Expected syntax: { exp } param got ${line}`);
     }
     const contract = line.substr(iLeft + 1, iRight - iLeft - 1), name = line.substr(iRight + 1).trim();
     return { contract, name };

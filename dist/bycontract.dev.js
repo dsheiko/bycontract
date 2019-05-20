@@ -10,6 +10,7 @@ exports.validate = byContract_1.default.validate;
 exports.Exception = byContract_1.default.Exception;
 exports.typedef = byContract_1.default.typedef;
 exports.config = byContract_1.default.config;
+exports.is = byContract_1.default.is;
 /**
  * Template tag flavor
  * @param {string[]} strings

@@ -13,7 +13,7 @@ export function parse( line: string ): ParserDto {
   const iLeft = line.indexOf( "{" ),
         iRight = line.indexOf( "}" );
   if ( iLeft === -1 || iRight === -1 ) {
-    throw new Exception( "EINVALIDJSDOC", "invalid JSDOC. Expected syntax: { exp } param" );
+    throw new Exception( "EINVALIDJSDOC", `invalid JSDOC. Expected syntax: { exp } param got ${ line }` );
   }
   const contract = line.substr( iLeft + 1, iRight - iLeft - 1 ),
         name = line.substr( iRight + 1 ).trim();

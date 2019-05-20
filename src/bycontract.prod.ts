@@ -4,6 +4,7 @@ export const validate = () => {};
 export const Exception = Error;
 export const typedef = () => {};
 export const config = () => {};
+export const is = {};
 
 export function validateContract( strings: string[], ...rest: any[] ): string {
       return "ignore";
