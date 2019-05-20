@@ -17,7 +17,7 @@ ByContract 2
 - Property decorators flavor
 - Can be disabled or completely cut off for production
 
-
+# Table of contents
 * [Welcome ByContract](#welcome-bycontract)
 * [Where to use it](#where-to-use-it)
 * [Syntax Overview](#syntax-overview)
