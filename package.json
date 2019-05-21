@@ -1,6 +1,6 @@
 {
   "name": "bycontract",
-  "description": "Design by Contract",
+  "description": "argument validation library based on JSDOC syntax",
   "version": "2.0.0",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "dist/bycontract.dev.js",
