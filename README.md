@@ -151,11 +151,11 @@ function pdf( path, w, h, options, callback ) {
   return validate( returnValue, "Promise" );
 }
 
-pdf( "/var/log/", 1, 1, { scale: 1 } );
+pdf( "/tmp/test.pdf", 1, 1, { scale: 1 } );
 
 // Test it
 
-pdf( "/var/log/", "1", 1, { scale: 1 } ); // ByContractError: Argument #1: expected non-nullable but got string
+pdf( "/tmp/test.pdf", "1", 1, { scale: 1 } ); // ByContractError: Argument #1: expected non-nullable but got string
 
 ```
 
@@ -233,6 +233,14 @@ class Page {
     return Promise.resolve();
   }
 }
+```
+
+```js
+const page = new Page();
+page.pdf( "/tmp/test.pdf", "1", 1, { scale: 1 } );
+// ByContractError:
+// Method: pdf, parameter w: expected non-nullable but got string
+
 ```
 
 This solution requires [legacy decorators proposal](https://babeljs.io/docs/en/babel-plugin-proposal-decorators) support. You can get it with following [Babel](https://babeljs.io) configuration
