@@ -235,6 +235,18 @@ class Page {
 }
 ```
 
+This solution requires [legacy decorators proposal](https://babeljs.io/docs/en/babel-plugin-proposal-decorators) support. You can get it with following [Babel](https://babeljs.io) configuration
+```json
+{
+  presets: [
+    [ "@babel/preset-env" ]
+  ],
+  plugins: [
+    [ "@babel/plugin-proposal-decorators", { "legacy": true } ]
+  ]
+}
+```
+
 
 # Types
 
