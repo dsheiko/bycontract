@@ -32,6 +32,7 @@ function typedef( typeName: string, tagDic: any ){
   customTypes[ typeName ] = tagDic;
 };
 
+
 /**
  * @param {*|*[]} values
  * @param {String|String[]|Function|Function[]} values
@@ -42,29 +43,36 @@ function validate( values: any | any[], contracts: any | any[], callContext?: st
   if ( !byContract.options.enable ) {
     return values;
   }
-  if ( typeof contracts === "undefined" ) {
-    throw new Exception( "EINVALIDPARAM",
-      err( "Invalid parameters. The second parameter (contracts) is missing", callContext ) );
-  }
-  // values: any[], contracts: string | any[]
-  if ( is.array( contracts ) ) {
-    if ( is.arguments( values ) ) {
-      values = Array.from( values );
-    }
-    if ( !is.array( values ) ) {
+  try {
+    if ( typeof contracts === "undefined" ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid parameters. When the second parameter (contracts) is an array," +
-        " the first parameter (values) must an array too", callContext ) );
+        err( "Invalid parameters. The second parameter (contracts) is missing", callContext ) );
     }
-    contracts.forEach(( c: any, inx: number ) => {
-      if ( !( inx in values ) && !c.match( /=$/ ) ) {
-        throw new Exception( "EMISSINGARG", err( "Missing required agument", callContext ) );
+    // values: any[], contracts: string | any[]
+    if ( is.array( contracts ) ) {
+      if ( is.arguments( values ) ) {
+        values = Array.from( values );
       }
-      validateValue( values[ inx ], c, callContext, inx );
-    });
-    return values;
+      if ( !is.array( values ) ) {
+        throw new Exception( "EINVALIDPARAM",
+          err( "Invalid parameters. When the second parameter (contracts) is an array," +
+          " the first parameter (values) must an array too", callContext ) );
+      }
+      contracts.forEach(( c: any, inx: number ) => {
+        if ( !( inx in values ) && !c.match( /=$/ ) ) {
+          throw new Exception( "EMISSINGARG", err( "Missing required argument", callContext ) );
+        }
+        validateValue( values[ inx ], c, callContext, inx );
+      });
+      return values;
+    }
+    validateValue( values, contracts, callContext );
+  } catch ( err ) {
+    if ( err instanceof Exception && Error.captureStackTrace ) {
+      Error.captureStackTrace( err, validate );
+    }
+    throw err;
   }
-  validateValue( values, contracts, callContext );
   return values;
 }
 

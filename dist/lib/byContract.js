@@ -37,27 +37,35 @@ function validate(values, contracts, callContext) {
     if (!byContract.options.enable) {
         return values;
     }
-    if (typeof contracts === "undefined") {
-        throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. The second parameter (contracts) is missing", callContext));
-    }
-    // values: any[], contracts: string | any[]
-    if (is_1.default.array(contracts)) {
-        if (is_1.default.arguments(values)) {
-            values = Array.from(values);
+    try {
+        if (typeof contracts === "undefined") {
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. The second parameter (contracts) is missing", callContext));
         }
-        if (!is_1.default.array(values)) {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. When the second parameter (contracts) is an array," +
-                " the first parameter (values) must an array too", callContext));
-        }
-        contracts.forEach((c, inx) => {
-            if (!(inx in values) && !c.match(/=$/)) {
-                throw new Exception_1.default("EMISSINGARG", err("Missing required agument", callContext));
+        // values: any[], contracts: string | any[]
+        if (is_1.default.array(contracts)) {
+            if (is_1.default.arguments(values)) {
+                values = Array.from(values);
             }
-            validateValue(values[inx], c, callContext, inx);
-        });
-        return values;
+            if (!is_1.default.array(values)) {
+                throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. When the second parameter (contracts) is an array," +
+                    " the first parameter (values) must an array too", callContext));
+            }
+            contracts.forEach((c, inx) => {
+                if (!(inx in values) && !c.match(/=$/)) {
+                    throw new Exception_1.default("EMISSINGARG", err("Missing required argument", callContext));
+                }
+                validateValue(values[inx], c, callContext, inx);
+            });
+            return values;
+        }
+        validateValue(values, contracts, callContext);
     }
-    validateValue(values, contracts, callContext);
+    catch (err) {
+        if (err instanceof Exception_1.default && Error.captureStackTrace) {
+            Error.captureStackTrace(err, validate);
+        }
+        throw err;
+    }
     return values;
 }
 function validateValue(value, contract, callContext, inx) {
