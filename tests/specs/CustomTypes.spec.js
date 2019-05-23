@@ -1,4 +1,4 @@
-import { validate, typedef } from "../../dist/dev";
+import { validate, typedef } from "../../dist/bycontract.dev";
 
 describe( "Custom types", () => {
   describe( "typedef", () => {

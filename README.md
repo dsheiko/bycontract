@@ -389,16 +389,11 @@ validate( [ new Date(), new Date(), new Date() ], "Array.<Date>" ); // ok
 ```
 
 
-## Nullable/Non-nullable Type
+## Nullable Type
 
 ```js
 validate( 100, "?number" ); // ok
 validate( null, "?number" ); // ok
-```
-
-```js
-validate( 100, "!number" ); // ok
-validate( null, "!number" ); // ByContractError: expected non-nullable but got null
 ```
 
 
@@ -416,6 +411,38 @@ try {
   console.log( err.message ); // expected nan but got number
 }
 ```
+
+# Combinations
+
+Sometimes we allow function to accept different sequences of types.
+Let’s take an [example](https://github.com/npm/cli/blob/v6.9.0/lib/fetch-package-metadata.js):
+
+```js
+function andLogAndFinish( spec, tracker, done ) {
+  validate( "SOF|SZF|OOF|OZF", [ spec, tracker, done ] )
+  //...
+}
+
+```
+Where the following sequences of types valid:
+- string, object, function
+- string, null, function
+- object, object, function
+- object, null, function
+
+
+```js
+import { validateCombo } from "bycontract";
+
+const CASE1 = [ "string", TRACKER_OPTIONS, "function" ],
+      CASE2 = [ "string", null, "function" ],
+      CASE3 = [ SPEC_OPTIONS, TRACKER_OPTIONS, "function" ],
+      CASE4 = [ SPEC_OPTIONS, null, "function" ];
+
+validateCombo( arguments, [ CASE1, CASE2, CASE3, CASE4 ] );
+```
+
+Function `validateCombo` throws exception only when
 
 # Custom Types
 

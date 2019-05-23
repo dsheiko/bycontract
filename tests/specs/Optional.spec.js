@@ -1,4 +1,4 @@
-import { validate } from "../../dist/dev";
+import { validate } from "../../dist/bycontract.dev";
 
 describe( "Optional Parameter Validation", () => {
   describe( "{number=}", () => {

@@ -29,6 +29,49 @@ function typedef(typeName, tagDic) {
 ;
 /**
  * @param {*|*[]} values
+ * @param {String[]|Function[]} values
+ * @param {*[]} combo
+ * @param {string} [callContext]
+ */
+function validateCombo(values, combo, callContext) {
+    try {
+        if (!is_1.default.array(values)) {
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validateCombo() parameters. The first parameter (values) shall be an array", callContext));
+        }
+        if (!is_1.default.array(combo)) {
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validateCombo() parameters. The second parameter (combo) shall be an array", callContext));
+        }
+        const exceptions = combo
+            .map(contracts => getValidateError(values, contracts, callContext));
+        if (exceptions.every(ex => ex !== false)) {
+            throw exceptions.find(ex => ex !== false);
+        }
+    }
+    catch (err) {
+        if (err instanceof Exception_1.default && Error.captureStackTrace) {
+            Error.captureStackTrace(err, validateCombo);
+        }
+        throw err;
+    }
+    return values;
+}
+/**
+ * @param {*|*[]} values
+ * @param {String[]|Function[]} values
+ * @param {*[]} contracts
+ * @param {string} [callContext]
+ */
+function getValidateError(values, contracts, callContext) {
+    try {
+        validate(values, contracts, callContext);
+        return false;
+    }
+    catch (err) {
+        return err;
+    }
+}
+/**
+ * @param {*|*[]} values
  * @param {String|String[]|Function|Function[]} values
  * @param {string} [callContext]
  */
@@ -39,7 +82,15 @@ function validate(values, contracts, callContext) {
     }
     try {
         if (typeof contracts === "undefined") {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. The second parameter (contracts) is missing", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The second parameter (contracts) is missing", callContext));
+        }
+        if (is_1.default.array(contracts) && !(is_1.default.array(values) || is_1.default.arguments(values))) {
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The second parameter (contracts) is array, "
+                + "the first one (values) expected to be array too", callContext));
+        }
+        if (callContext && !is_1.default.string(callContext)) {
+            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The third parameter (callContext)"
+                + " shall be string or omitted", callContext));
         }
         // values: any[], contracts: string | any[]
         if (is_1.default.array(contracts)) {
@@ -91,6 +142,7 @@ const byContract = {
     validate: validate,
     typedef: typedef,
     config: config,
+    validateCombo: validateCombo,
     is: is_1.default
 };
 exports.default = byContract;

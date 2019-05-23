@@ -88,10 +88,6 @@ class Validate {
     if ( this.assertNullable() ) {
       return;
     }
-    // Case: byContract( val, "!number" );
-    if ( this.assertNonNullable() ) {
-      return;
-    }
 
     // Case: byContract( val, "number|boolean" );
     if ( this.assertUnion() ) {
@@ -236,31 +232,32 @@ class Validate {
    * @returns boolean is resolved
    */
   assertNullable(): boolean {
-     if ( this.contract !== "?number" ) {
-       return false;
-     }
-     if ( is.number( this.val ) || is[ "null" ]( this.val ) ) {
-       return true;
-     }
-     throw this.newException(
-        "EINVALIDTYPE",
-        `expected nullable but got ${ getType( this.val ) }` );
-  }
 
-  /**
-   * Case: byContract( val, "!number" );
-   * @returns boolean is resolved
-   */
-  assertNonNullable(): boolean {
-     if ( this.contract !== "!number" ) {
-       return false;
-     }
-     if ( is.number( this.val ) && !is[ "null" ]( this.val ) ) {
+    if ( !this.contract.startsWith( "?" ) ) {
+      return false;
+    }
+
+    const vtype = this.contract.replace( /^\?/, "" ).toLowerCase(),
+          test = is[ vtype ];
+
+    if ( is[ "null" ]( this.val ) ) {
        return true;
-     }
-     throw this.newException(
-        "EINVALIDTYPE",
-        `expected non-nullable but got ${ getType( this.val ) }` );
+    }
+
+    // in the list of basic type validation
+    if ( typeof test === "undefined" ) {
+      throw this.newException(
+        "EINVALIDCONTRACT",
+        `invalid contract ${ JSON.stringify( vtype ) }`
+    );
+    }
+
+    if ( !test( this.val ) ) {
+      throw this.newException(
+       "EINVALIDTYPE",
+       `expected ${ this.contract } but got ${ getType( this.val ) }` );
+    }
+    return true;
   }
 
   /**

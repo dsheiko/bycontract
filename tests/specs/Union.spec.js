@@ -1,4 +1,4 @@
-import { validate } from "../../dist/dev";
+import { validate } from "../../dist/bycontract.dev";
 
  describe( "Union Type Validation", () => {
   describe( "{number|string}", () => {

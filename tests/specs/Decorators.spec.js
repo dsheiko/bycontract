@@ -1,4 +1,4 @@
-import { validateJsdoc } from "../../dist/dev";
+import { validateJsdoc } from "../../dist/bycontract.dev";
 
 describe( "@validateJsdoc", () => {
   describe( "{string}", () => {

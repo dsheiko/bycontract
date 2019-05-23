@@ -1,4 +1,4 @@
-import { validate, config, typedef } from "../../dist/dev";
+import { validate, config, typedef } from "../../dist/bycontract.dev";
 
 describe( "Enable Validation", () => {
   beforeEach(() => {

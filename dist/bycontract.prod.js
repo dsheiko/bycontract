@@ -9,6 +9,7 @@ exports.Exception = Error;
 exports.typedef = () => { };
 exports.config = () => { };
 exports.is = {};
+exports.validateCombo = () => { };
 function validateContract(strings, ...rest) {
     return "ignore";
 }

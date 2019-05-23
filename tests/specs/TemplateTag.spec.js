@@ -1,4 +1,4 @@
-import { validateContract, typedef } from "../../dist/dev";
+import { validateContract, typedef } from "../../dist/bycontract.dev";
 
 
 describe( "jsdoc", () => {

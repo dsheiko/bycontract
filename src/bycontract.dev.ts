@@ -6,6 +6,7 @@ export const validate = byContract.validate;
 export const Exception = byContract.Exception;
 export const typedef = byContract.typedef;
 export const config = byContract.config;
+export const validateCombo = byContract.validateCombo;
 export const is = byContract.is;
 
 /**
