@@ -442,7 +442,7 @@ const CASE1 = [ "string", TRACKER_OPTIONS, "function" ],
 validateCombo( arguments, [ CASE1, CASE2, CASE3, CASE4 ] );
 ```
 
-Function `validateCombo` throws exception only when
+Function `validateCombo` throws exception when none of the cases is valid
 
 # Custom Types
 
