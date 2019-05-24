@@ -10,6 +10,19 @@ describe( "Basic Type Validation", () => {
       });
     });
 
+    it( "doesn't throw when any in properties", () => {
+      const val = {
+        editing: false,
+        commands: {}
+      },
+      fn = () => { validate( val, {
+          editing: "boolean",
+          commands: "*"
+      }); };
+      expect( fn ).not.toThrow();
+    });
+
+
   });
 
   describe( "{string}", () => {
