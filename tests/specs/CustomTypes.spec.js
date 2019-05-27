@@ -21,7 +21,20 @@ describe( "Custom types", () => {
           expect( fn ).not.toThrow();
 
         });
-        it( "doesn't throw on a valid contract", () => {
+
+        it( "doesn't throw on optional contract", () => {
+          typedef( "#Hero", "string" );
+          const fn = () => { return validate( false, "#Hero=" ); };
+          expect( fn ).not.toThrow();
+        });
+
+        it( "doesn't throw on nullable contract", () => {
+          typedef( "#Hero", "number" );
+          const fn = () => { return validate( null, "?#Hero" ); };
+          expect( fn ).not.toThrow();
+        });
+
+        it( "doesn't throw on a valid structure contract", () => {
           typedef( "#Hero", {
             hasSuperhumanStrength: "boolean",
             hasWaterbreathing: "boolean"
@@ -36,6 +49,39 @@ describe( "Custom types", () => {
           expect( fn ).not.toThrow();
 
         });
+
+        it( "doesn't throw on a valid strict array contract", () => {
+          typedef( "#Hero", {
+            hasSuperhumanStrength: "boolean",
+            hasWaterbreathing: "boolean"
+          });
+          var superman = {
+            hasSuperhumanStrength: true,
+            hasWaterbreathing: false
+          },
+          fn = () => { return validate( [ superman ], "#Hero[]" ); };
+          try { fn(); } catch( err ){ console.log( err.message ); }
+          fn = () => { return validate( [ superman ], "Array.<#Hero>" ); };
+          try { fn(); } catch( err ){ console.log( err.message ); }
+          expect( fn ).not.toThrow();
+
+        });
+
+        it( "doesn't throw on a valid strict object contract", () => {
+          typedef( "#Hero", {
+            hasSuperhumanStrength: "boolean",
+            hasWaterbreathing: "boolean"
+          });
+          var superman = {
+            hasSuperhumanStrength: true,
+            hasWaterbreathing: false
+          },
+          fn = () => { return validate( { foo: superman }, "Object.<string, #Hero>" ); };
+          try { fn(); } catch( err ){ console.log( err.message ); }
+          expect( fn ).not.toThrow();
+
+        });
+
         it( "throws on inteface violation", () => {
           typedef( "#Hero", {
             hasSuperhumanStrength: "boolean",
