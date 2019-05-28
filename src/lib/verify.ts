@@ -136,7 +136,7 @@ class Validate {
    * @returns boolean is resolved
    */
   assertCustom(): boolean {
-    
+
     if ( !( this.contract in customTypes ) ) {
       return false;
     }
@@ -406,7 +406,7 @@ class Validate {
   }
 
   newException( code: string, msg: string ) {
-    const pref = this.propPath ? ` property #${ this.propPath } ` : ``;
+    const pref = this.propPath ? `property #${ this.propPath } ` : ``;
     return new Exception( code, pref + msg );
   }
 }

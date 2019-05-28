@@ -321,7 +321,7 @@ class Validate {
         return true;
     }
     newException(code, msg) {
-        const pref = this.propPath ? ` property #${this.propPath} ` : ``;
+        const pref = this.propPath ? `property #${this.propPath} ` : ``;
         return new Exception_1.default(code, pref + msg);
     }
 }
