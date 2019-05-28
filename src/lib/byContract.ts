@@ -1,9 +1,8 @@
 import Exception from "./Exception";
-import verify from "./verify";
+import verify, { customTypes } from "./verify";
 import is from "./is";
 import scope from "./scope";
 
-const customTypes: any = {};
 
 function err( msg: string, callContext: string, argInx?: number ) {
   const loc = typeof argInx !== "undefined" ? `Argument #${ argInx }: ` : ``,
@@ -142,9 +141,7 @@ function validate( values: any | any[], contracts: any | any[], callContext?: st
 
 function validateValue( value: any, contract: any, callContext?: string, inx?: number ) {
   try {
-    if ( contract in  customTypes ) {
-      return verify( value, customTypes[ contract ] );
-    }
+
     // Test a single value against contract
     verify( value, contract );
   } catch ( ex ) {

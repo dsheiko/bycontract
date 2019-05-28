@@ -38,6 +38,7 @@ function isValid(val, contract, exceptions = []) {
         return false;
     }
 }
+exports.customTypes = {};
 function verify(val, contract, propPath = "") {
     const lib = new Validate(val, contract, propPath);
     lib.validate();
@@ -94,6 +95,10 @@ class Validate {
         if (this.assertStrictObject()) {
             return;
         }
+        // Case: byContract( val, "CustomType" );
+        if (this.assertCustom()) {
+            return;
+        }
         if (!this.contract.match(/^[a-zA-Z0-9\._]+$/)) {
             throw this.newException("EINVALIDCONTRACT", `invalid contract ${JSON.stringify(this.contract)}`);
         }
@@ -101,6 +106,22 @@ class Validate {
             return;
         }
         throw this.newException("EINVALIDCONTRACT", `invalid contract ${JSON.stringify(this.contract)}`);
+    }
+    /**
+     * Case: byContract( val, "CustomType" );
+     * @returns boolean is resolved
+     */
+    assertCustom() {
+        if (!(this.contract in exports.customTypes)) {
+            return false;
+        }
+        try {
+            verify(this.val, exports.customTypes[this.contract]);
+        }
+        catch (err) {
+            throw this.newException("EINVALIDTYPE", `type ${this.contract}: ${err.message}`);
+        }
+        return true;
     }
     /**
      * Case: byContract( val, "Backbone.Model" );
