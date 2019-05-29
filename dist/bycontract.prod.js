@@ -3,14 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const scope_1 = __importDefault(require("./lib/scope"));
-exports.validate = () => { };
+var scope_1 = __importDefault(require("./lib/scope"));
+exports.validate = function () { };
 exports.Exception = Error;
-exports.typedef = () => { };
-exports.config = () => { };
+exports.typedef = function () { };
+exports.config = function () { };
 exports.is = {};
-exports.validateCombo = () => { };
-function validateContract(strings, ...rest) {
+exports.validateCombo = function () { };
+function validateContract(strings) {
+    var rest = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        rest[_i - 1] = arguments[_i];
+    }
     return "ignore";
 }
 exports.validateContract = validateContract;
@@ -25,4 +29,4 @@ function validateJsdoc(contracts) {
     };
 }
 exports.validateJsdoc = validateJsdoc;
-scope_1.default.byContract = { validate: exports.validate, Exception: exports.Exception, typedef: exports.typedef, config: exports.config, validateJsdoc, validateContract };
+scope_1.default.byContract = { validate: exports.validate, Exception: exports.Exception, typedef: exports.typedef, config: exports.config, validateJsdoc: validateJsdoc, validateContract: validateContract };

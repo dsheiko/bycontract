@@ -74,6 +74,31 @@ describe( "Custom types", () => {
     });
   });
 
+  describe( "union", () => {
+     test( "when ok", () => {
+      typedef( "#Hero", {
+        hasSuperhumanStrength: "boolean",
+        hasWaterbreathing: "boolean"
+      });
+      let superman = {
+        hasSuperhumanStrength: true,
+        hasWaterbreathing: false
+      },
+      fn = () => { return validate( "string", "string|#Hero" ); };
+      expect( fn ).not.toThrow();
+      fn = () => { return validate( superman, "string|#Hero" ); };
+      expect( fn ).not.toThrow();
+    });
+    test( "when exception", () => {
+      typedef( "#Hero", {
+        hasSuperhumanStrength: "boolean",
+        hasWaterbreathing: "boolean"
+      });
+      const fn = () => { return validate( 100, "string|#Hero" ); };
+      expect( fn ).toThrow();
+    });
+  });
+
   describe( "structure", () => {
      test( "when ok", () => {
       typedef( "#Hero", {

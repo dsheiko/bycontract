@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,15 +21,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Exception_1 = __importDefault(require("./Exception"));
-const verify_1 = __importStar(require("./verify"));
-const is_1 = __importDefault(require("./is"));
+var Exception_1 = __importDefault(require("./Exception"));
+var verify_1 = __importStar(require("./verify"));
+var is_1 = __importDefault(require("./is"));
 function err(msg, callContext, argInx) {
-    const loc = typeof argInx !== "undefined" ? `Argument #${argInx}: ` : ``, prefix = callContext ? callContext + ": " : "";
-    return `${prefix}${loc}${msg}`;
+    var loc = typeof argInx !== "undefined" ? "Argument #" + argInx + ": " : "", prefix = callContext ? callContext + ": " : "";
+    return "" + prefix + loc + msg;
 }
 function config(options) {
-    byContract.options = Object.assign({}, byContract.options, options);
+    byContract.options = __assign({}, byContract.options, options);
 }
 /**
  * Document a custom type
@@ -47,10 +58,10 @@ function validateCombo(values, combo, callContext) {
         if (!is_1.default.array(combo)) {
             throw new Exception_1.default("EINVALIDPARAM", err("Invalid validateCombo() parameters. The second parameter (combo) shall be an array", callContext));
         }
-        const exceptions = combo
-            .map(contracts => getValidateError(values, contracts, callContext));
-        if (exceptions.every(ex => ex !== false)) {
-            throw exceptions.find(ex => ex !== false);
+        var exceptions = combo
+            .map(function (contracts) { return getValidateError(values, contracts, callContext); });
+        if (exceptions.every(function (ex) { return ex !== false; })) {
+            throw exceptions.find(function (ex) { return ex !== false; });
         }
     }
     catch (err) {
@@ -107,7 +118,7 @@ function validate(values, contracts, callContext) {
                 throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. When the second parameter (contracts) is an array," +
                     " the first parameter (values) must an array too", callContext));
             }
-            contracts.forEach((c, inx) => {
+            contracts.forEach(function (c, inx) {
                 if (!(inx in values) && !c.match(/=$/)) {
                     throw new Exception_1.default("EMISSINGARG", err("Missing required argument", callContext));
                 }
@@ -137,7 +148,7 @@ function validateValue(value, contract, callContext, inx) {
         throw new Exception_1.default(ex.code, err(ex.message, callContext, inx));
     }
 }
-const byContract = {
+var byContract = {
     options: {
         enable: true
     },
