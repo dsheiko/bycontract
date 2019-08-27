@@ -6,6 +6,10 @@ describe( "Array/Object Validation", () => {
       var fn = () => { validate( [ 1, 2 ], "Array.<number>" ); };
       expect( fn ).not.toThrow();
     });
+    it( "throws when incorrect", () => {
+      var fn = () => { validate( null, "Array.<number>" ); };
+      expect( fn ).toThrowError( /expected array but got null/ );
+    });
     it( "throws when validate( [ 1, {} ], \"Array.<number>\" )", () => {
       var fn = () => { validate( [ 1, {} ], "Array.<number>" ); };
       expect( fn ).toThrowError( /array element 1: expected number but got object/ );
@@ -27,6 +31,10 @@ describe( "Array/Object Validation", () => {
     it( "doesn't throw when validate( [ 1, 2 ], \"number[]\" )", () => {
       var fn = () => { validate( [ 1, 2 ], "number[]" ); };
       expect( fn ).not.toThrow();
+    });
+    it( "throws when incorrect", () => {
+      var fn = () => { validate( null, "number[]" ); };
+      expect( fn ).toThrowError( /expected array but got null/ );
     });
     it( "throws when validate( [ 1, {} ], \"number[]\" )", () => {
       var fn = () => { validate( [ 1, {} ], "number[]" ); };
@@ -51,6 +59,8 @@ describe( "Array/Object Validation", () => {
       expect( fn ).not.toThrow();
       var fn = () => { validate( "value", "string|number[]" ); };
       expect( fn ).not.toThrow();
+      var fn = () => { validate( "value", "number[]|string" ); };
+      expect( fn ).not.toThrow();
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( [ 1, {} ], "string|number[]" ); };
@@ -70,6 +80,10 @@ describe( "Array/Object Validation", () => {
     it( "doesn't throw when validate( { foo: 1 }, \"Object.<string, string>\" )", () => {
       var fn = () => { validate( { foo: 1 }, "Object.<string, string>" ); };
       expect( fn ).toThrowError( /object property foo: expected string but got number/ );
+    });
+    it( "throws when incorrect", () => {
+      var fn = () => { validate( null, "Object.<string, string>" ); };
+      expect( fn ).toThrowError( /expected object but got null/ );
     });
   });
 });
