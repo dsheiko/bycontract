@@ -252,6 +252,10 @@ var Validate = /** @class */ (function () {
         if (!this.contract.endsWith("[]")) {
             return false;
         }
+        if (!is_1.default.array(this.val)) {
+            this.contract = "array";
+            return this.assertBasicType();
+        }
         var contract = this.contract.replace(/\[\]$/, "");
         var elInx = 0;
         if (contract === "*") {
@@ -276,6 +280,10 @@ var Validate = /** @class */ (function () {
     Validate.prototype.assertStrictArray = function () {
         if (!this.contract.startsWith("Array.<")) {
             return false;
+        }
+        if (!is_1.default.array(this.val)) {
+            this.contract = "array";
+            return this.assertBasicType();
         }
         var elInx = 0;
         var match = this.contract.match(/Array\.<(.+)>/i);
@@ -305,6 +313,10 @@ var Validate = /** @class */ (function () {
         var _this = this;
         if (this.contract.indexOf("Object.<") !== 0) {
             return false;
+        }
+        if (!is_1.default.object(this.val)) {
+            this.contract = "object";
+            return this.assertBasicType();
         }
         var prop = null;
         var match = this.contract.match(/Object\.<(.+),\s*(.+)>/i);

@@ -318,6 +318,10 @@ class Validate {
     if ( !this.contract.endsWith( "[]" ) ) {
       return false;
     }
+    if ( !is.array( this.val ) ) {
+      this.contract = "array";
+      return this.assertBasicType();
+    }
     const contract = this.contract.replace( /\[\]$/, "" );
     let elInx = 0;
     if ( contract === "*" ) {
@@ -344,6 +348,10 @@ class Validate {
   assertStrictArray(): boolean {
     if ( !this.contract.startsWith( "Array.<" ) ) {
       return false;
+    }
+    if ( !is.array( this.val ) ) {
+      this.contract = "array";
+      return this.assertBasicType();
     }
     let elInx = 0;
     const match = this.contract.match( /Array\.<(.+)>/i );
@@ -378,6 +386,10 @@ class Validate {
   assertStrictObject(): boolean {
     if ( this.contract.indexOf( "Object.<" ) !== 0 ) {
        return false;
+    }
+    if ( !is.object( this.val ) ) {
+      this.contract = "object";
+      return this.assertBasicType();
     }
     let prop = null;
     const match = this.contract.match( /Object\.<(.+),\s*(.+)>/i );
