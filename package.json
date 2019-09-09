@@ -1,7 +1,7 @@
 {
   "name": "bycontract",
   "description": "argument validation library based on JSDOC syntax",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "dist/bycontract.dev.js",
   "typings": "./index.d.ts",
@@ -34,12 +34,7 @@
     "webpack": "^4.31.0",
     "webpack-cli": "^3.3.2"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://mit-license.org/"
-    }
-  ],
+  "license": "MIT",
   "maintainers": [
     {
       "name": "Dmitry Sheiko",
