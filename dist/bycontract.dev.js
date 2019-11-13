@@ -90,4 +90,4 @@ function validateJsdoc(contracts) {
     };
 }
 exports.validateJsdoc = validateJsdoc;
-scope_1.default.byContract = __assign({}, byContract_1.default, { validateJsdoc: validateJsdoc, validateContract: validateContract });
+scope_1.default.byContract = __assign(__assign({}, byContract_1.default), { validateJsdoc: validateJsdoc, validateContract: validateContract });

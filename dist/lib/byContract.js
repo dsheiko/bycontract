@@ -29,7 +29,7 @@ function err(msg, callContext, argInx) {
     return "" + prefix + loc + msg;
 }
 function config(options) {
-    byContract.options = __assign({}, byContract.options, options);
+    byContract.options = __assign(__assign({}, byContract.options), options);
 }
 /**
  * Document a custom type

@@ -1,0 +1,23 @@
+{
+  "name": "bycontract-demo",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">= 12.13 <13"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.21",
+    "@types/node": "^12.12.5",
+    "rimraf": "^3.0.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-microsoft-contrib": "~6.2.0",
+    "tsutils": "~3.17.0",
+    "typescript": "~3.7.2"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.release.json"
+  },
+  "dependencies": {
+    "bycontract": "file:../../bycontract-2.0.7.tgz",
+    "tslib": "~1.10.0"
+  }
+}
