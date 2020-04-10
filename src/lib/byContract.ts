@@ -10,7 +10,7 @@ function err( msg: string, callContext: string, argInx?: number ) {
   return `${prefix}${ loc }${ msg }`;
 }
 
-interface Options {
+export interface Options {
   enable?: boolean
 }
 

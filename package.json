@@ -4,7 +4,7 @@
   "version": "2.0.7",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "dist/bycontract.dev.js",
-  "typings": "./index.d.ts",
+  "typings": "./dist/typings/bycontract.dev.d.ts",
   "scripts": {
     "test": "jest --config=jest.cfg.unit.js",
     "build": "npm run build:module && npm run build:web",
@@ -29,7 +29,6 @@
     "jest-cli": "^24.8.0",
     "terser-webpack-plugin": "^2.2.1",
     "ts-loader": "^6.2.1",
-    "tsc": "^1.20150623.0",
     "typescript": "^3.7.2",
     "webpack": "^4.31.0",
     "webpack-cli": "^3.3.2"

@@ -3,10 +3,7 @@
     "module": "commonjs",
     "target": "es5",
     "moduleResolution": "node",
-    "types": [
-      "node",
-      "jest"
-    ],
+    "types": ["node", "jest"],
     "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -14,10 +11,9 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "outDir": "./dist/"
+    "outDir": "./dist/",
+    "declaration": true,
+    "declarationDir": "./dist/typings"
   },
-  "files": [
-    "./src/bycontract.dev.ts",
-    "./src/bycontract.prod.ts"
-  ]
+  "files": ["./src/bycontract.dev.ts", "./src/bycontract.prod.ts"]
 }
