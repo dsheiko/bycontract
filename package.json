@@ -1,7 +1,7 @@
 {
   "name": "bycontract",
   "description": "argument validation library based on JSDOC syntax",
-  "version": "2.0.7",
+  "version": "2.0.9",
   "author": "Dmitry Sheiko <me@dsheiko.com>",
   "main": "dist/bycontract.dev.js",
   "typings": "./dist/typings/bycontract.dev.d.ts",
