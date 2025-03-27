@@ -4,18 +4,18 @@ ByContract 2
 [![Build Status](https://travis-ci.org/dsheiko/bycontract.png)](https://travis-ci.org/dsheiko/bycontract)
 [![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-`byContract` is a small argument validation library based on [JSDOC syntax](https://jsdoc.app/tags-type.html). The library is available as a UMD-compatible module. Besides, it exposes `byContract` function globally when `window` object available, meaning you can still use it in non-modular programming.
+`bycontract` – A lightweight runtime type checker for JavaScript and TypeScript, powered by [JSDOC syntax](https://jsdoc.app/tags-type.html). Ensure your functions receive the right arguments with simple, declarative contract definitions. No transpilation needed—just clean, reliable validation.
 
 # Highlights
 
-- Validation syntax based on JSDoc expressions
-- Entry and exit point contract validation
-- Explanatory exceptions in the style of [aproba](https://github.com/iarna/aproba)
-- Recursive structure (object) validation
-- Interface validation
-- Template tag flavor
-- Property decorators flavor
-- Can be disabled or completely cut off for production
+- **JSDoc-based validation** – Use familiar JSDoc expressions for defining type contracts.
+- **Comprehensive contract checks** – Validate both function inputs and return values.
+- **Clear, actionable errors** – Get detailed exceptions, inspired by [aproba](https://github.com/iarna/aproba).
+- **Deep object validation** – Support for recursive structure checks.
+- **Interface validation** – Ensure objects conform to expected shapes.
+- **Flexible usage** – Available as a template tag and property decorators.
+- **Production-ready** – Can be disabled or stripped out entirely for optimized builds.
+
 
 # Table of contents
 * [Welcome ByContract](#welcome-bycontract)
