@@ -19,11 +19,21 @@ function config( options: Options ): void {
 }
 
 /**
- * Document a custom type
- * @param {string} typeName
- * @param {string|Object.<string, *>} tagDic
+ * Register a named custom type (legacy string-registry form):
+ *   typedef("#Hero", { hasSuperhumanStrength: "boolean" });
+ *   validate(val, "#Hero");
+ *
+ * Or return a schema object directly (value-based form, no global side effects):
+ *   const HeroType = typedef({ hasSuperhumanStrength: "boolean" });
+ *   validate(val, HeroType);
  */
-function typedef( typeName: string, tagDic: any ){
+function typedef( schema: Record<string, any> ): Record<string, any>;
+function typedef( typeName: string, tagDic: any ): void;
+function typedef( nameOrSchema: string | Record<string, any>, tagDic?: any ): void | Record<string, any> {
+  if ( typeof nameOrSchema === "object" && nameOrSchema !== null ) {
+    return nameOrSchema;
+  }
+  const typeName = nameOrSchema as string;
   validate([ typeName, tagDic ], [ "string", "*" ], "byContract.typedef" );
   if ( typeName in is ) {
     throw new Exception( "EINVALIDPARAM", "Custom type must not override a primitive" );
@@ -41,11 +51,11 @@ function validateCombo( values: any[], combo: any[], callContext?: string ) {
   try {
     if ( !is.array( values ) ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid validateCombo() parameters. The first parameter (values) shall be an array", callContext ) );
+        err( "validateCombo(): values must be an array", callContext ) );
     }
     if ( !is.array( combo ) ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid validateCombo() parameters. The second parameter (combo) shall be an array", callContext ) );
+        err( "validateCombo(): combo must be an array", callContext ) );
     }
 
     const exceptions = combo
@@ -95,19 +105,17 @@ function validate( values: any | any[], contracts: any | any[], callContext?: st
 
     if ( typeof contracts === "undefined" ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid validate() parameters. The second parameter (contracts) is missing", callContext ) );
+        err( "validate(): second argument (contracts) is required", callContext ) );
     }
 
     if ( is.array( contracts ) && !( is.array( values ) || is.arguments( values ) ) ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid validate() parameters. The second parameter (contracts) is array, "
-          + "the first one (values) expected to be array too", callContext ) );
+        err( "validate(): contracts is an array, so values must also be an array or arguments object", callContext ) );
     }
 
     if ( callContext && !is.string( callContext) ) {
       throw new Exception( "EINVALIDPARAM",
-        err( "Invalid validate() parameters. The third parameter (callContext)"
-          + " shall be string or omitted", callContext ) );
+        err( "validate(): callContext must be a string", callContext ) );
     }
 
 
@@ -118,12 +126,11 @@ function validate( values: any | any[], contracts: any | any[], callContext?: st
       }
       if ( !is.array( values ) ) {
         throw new Exception( "EINVALIDPARAM",
-          err( "Invalid parameters. When the second parameter (contracts) is an array," +
-          " the first parameter (values) must an array too", callContext ) );
+          err( "validate(): contracts is an array, so values must also be an array or arguments object", callContext ) );
       }
       contracts.forEach(( c: any, inx: number ) => {
-        if ( !( inx in values ) && !c.match( /=$/ ) ) {
-          throw new Exception( "EMISSINGARG", err( "Missing required argument", callContext ) );
+        if ( !( inx in values ) && !( typeof c === "string" && c.endsWith( "=" ) ) ) {
+          throw new Exception( "EMISSINGARG", err( `Argument #${ inx } is required`, callContext ) );
         }
         validateValue( values[ inx ], c, callContext, inx );
       });

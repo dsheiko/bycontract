@@ -1,9 +1,16 @@
 export declare const validate: (values: any, contracts: any, callContext?: string) => any;
 export declare const Exception: typeof import("./lib/Exception").default;
-export declare const typedef: (typeName: string, tagDic: any) => void;
+export declare const typedef: {
+    (schema: Record<string, any>): Record<string, any>;
+    (typeName: string, tagDic: any): void;
+};
 export declare const config: (options: import("./lib/byContract").Options) => void;
 export declare const validateCombo: (values: any[], combo: any[], callContext?: string) => any[];
 export declare const is: import("./lib/interfaces").Indexable;
+import { optional, nullable, nonNull, arrayOf, union } from "./lib/modifiers";
+import { contract } from "./lib/contract";
+export { optional, nullable, nonNull, arrayOf, union };
+export { contract };
 /**
  * Template tag flavor
  * @param {string[]} strings

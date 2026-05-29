@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateJsdoc = exports.validateContract = exports.is = exports.validateCombo = exports.config = exports.typedef = exports.Exception = exports.validate = void 0;
+exports.validateJsdoc = exports.validateContract = exports.contract = exports.union = exports.arrayOf = exports.nonNull = exports.nullable = exports.optional = exports.is = exports.validateCombo = exports.config = exports.typedef = exports.Exception = exports.validate = void 0;
 var byContract_1 = __importDefault(require("./lib/byContract"));
 var jsDoc_1 = require("./lib/jsDoc");
 var scope_1 = __importDefault(require("./lib/scope"));
@@ -24,6 +24,14 @@ exports.typedef = byContract_1.default.typedef;
 exports.config = byContract_1.default.config;
 exports.validateCombo = byContract_1.default.validateCombo;
 exports.is = byContract_1.default.is;
+var modifiers_1 = require("./lib/modifiers");
+Object.defineProperty(exports, "optional", { enumerable: true, get: function () { return modifiers_1.optional; } });
+Object.defineProperty(exports, "nullable", { enumerable: true, get: function () { return modifiers_1.nullable; } });
+Object.defineProperty(exports, "nonNull", { enumerable: true, get: function () { return modifiers_1.nonNull; } });
+Object.defineProperty(exports, "arrayOf", { enumerable: true, get: function () { return modifiers_1.arrayOf; } });
+Object.defineProperty(exports, "union", { enumerable: true, get: function () { return modifiers_1.union; } });
+var contract_1 = require("./lib/contract");
+Object.defineProperty(exports, "contract", { enumerable: true, get: function () { return contract_1.contract; } });
 /**
  * Template tag flavor
  * @param {string[]} strings
@@ -91,4 +99,4 @@ function validateJsdoc(contracts) {
     };
 }
 exports.validateJsdoc = validateJsdoc;
-scope_1.default.byContract = __assign(__assign({}, byContract_1.default), { validateJsdoc: validateJsdoc, validateContract: validateContract });
+scope_1.default.byContract = __assign(__assign({}, byContract_1.default), { validateJsdoc: validateJsdoc, validateContract: validateContract, contract: contract_1.contract, optional: modifiers_1.optional, nullable: modifiers_1.nullable, nonNull: modifiers_1.nonNull, arrayOf: modifiers_1.arrayOf, union: modifiers_1.union });

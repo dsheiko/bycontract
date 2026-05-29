@@ -43,12 +43,11 @@ function err(msg, callContext, argInx) {
 function config(options) {
     byContract.options = __assign(__assign({}, byContract.options), options);
 }
-/**
- * Document a custom type
- * @param {string} typeName
- * @param {string|Object.<string, *>} tagDic
- */
-function typedef(typeName, tagDic) {
+function typedef(nameOrSchema, tagDic) {
+    if (typeof nameOrSchema === "object" && nameOrSchema !== null) {
+        return nameOrSchema;
+    }
+    var typeName = nameOrSchema;
     validate([typeName, tagDic], ["string", "*"], "byContract.typedef");
     if (typeName in is_1.default) {
         throw new Exception_1.default("EINVALIDPARAM", "Custom type must not override a primitive");
@@ -65,10 +64,10 @@ function typedef(typeName, tagDic) {
 function validateCombo(values, combo, callContext) {
     try {
         if (!is_1.default.array(values)) {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validateCombo() parameters. The first parameter (values) shall be an array", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("validateCombo(): values must be an array", callContext));
         }
         if (!is_1.default.array(combo)) {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validateCombo() parameters. The second parameter (combo) shall be an array", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("validateCombo(): combo must be an array", callContext));
         }
         var exceptions = combo
             .map(function (contracts) { return getValidateError(values, contracts, callContext); });
@@ -111,15 +110,13 @@ function validate(values, contracts, callContext) {
     }
     try {
         if (typeof contracts === "undefined") {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The second parameter (contracts) is missing", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("validate(): second argument (contracts) is required", callContext));
         }
         if (is_1.default.array(contracts) && !(is_1.default.array(values) || is_1.default.arguments(values))) {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The second parameter (contracts) is array, "
-                + "the first one (values) expected to be array too", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("validate(): contracts is an array, so values must also be an array or arguments object", callContext));
         }
         if (callContext && !is_1.default.string(callContext)) {
-            throw new Exception_1.default("EINVALIDPARAM", err("Invalid validate() parameters. The third parameter (callContext)"
-                + " shall be string or omitted", callContext));
+            throw new Exception_1.default("EINVALIDPARAM", err("validate(): callContext must be a string", callContext));
         }
         // values: any[], contracts: string | any[]
         if (is_1.default.array(contracts)) {
@@ -127,12 +124,11 @@ function validate(values, contracts, callContext) {
                 values = Array.from(values);
             }
             if (!is_1.default.array(values)) {
-                throw new Exception_1.default("EINVALIDPARAM", err("Invalid parameters. When the second parameter (contracts) is an array," +
-                    " the first parameter (values) must an array too", callContext));
+                throw new Exception_1.default("EINVALIDPARAM", err("validate(): contracts is an array, so values must also be an array or arguments object", callContext));
             }
             contracts.forEach(function (c, inx) {
-                if (!(inx in values) && !c.match(/=$/)) {
-                    throw new Exception_1.default("EMISSINGARG", err("Missing required argument", callContext));
+                if (!(inx in values) && !(typeof c === "string" && c.endsWith("="))) {
+                    throw new Exception_1.default("EMISSINGARG", err("Argument #" + inx + " is required", callContext));
                 }
                 validateValue(values[inx], c, callContext, inx);
             });

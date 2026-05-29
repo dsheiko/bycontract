@@ -2,35 +2,57 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>ByContract Tests</title>
+  <title>bycontract 3.0 — browser example</title>
   <style>
-    .console {
-      padding: 32px;
-      font-size: 18px;
-    }
+    body { font-family: monospace; padding: 32px; font-size: 15px; line-height: 1.7; }
+    .ok  { color: green; }
+    .err { color: crimson; }
   </style>
 </head>
 <body>
-  <div class="console"></div>
-  <script src="./byContract.min.js"></script>
+  <script src="../../dist/byContract.min.js"></script>
   <script>
-    const con = document.querySelector( ".console" );
-    byContract.validate( 1, "number|string" );
-    con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( 1, "number|string" ); - fine</p>` );
-    try {
-      byContract.validate( null, "number|string" );
-    } catch ( err ) {
-      console.error( err );
-      con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( null, "number|string" ); - throws ${ err.message }</p>` );
+    const { validate, contract, nonNull, optional, config } = byContract;
+
+    function log( msg, ok ) {
+      const p = document.createElement( "p" );
+      p.className = ok ? "ok" : "err";
+      p.textContent = msg;
+      document.body.appendChild( p );
     }
-    byContract.config({ enable: false });
+
+    // basic validate
+    validate( 1, "number|string" );
+    log( 'validate(1, "number|string") — ok', true );
+
+    // nonNull modifier
     try {
-      byContract.validate( null, "number|string" );
-      con.insertAdjacentHTML( 'beforeend', `<p>byContract.validate( null, "number|string" ); `
-        + `- throws nothing when byContract.validate.isEnabled = false</p>` );
+      validate( null, nonNull( "number" ) );
     } catch ( err ) {
-      con.insertAdjacentHTML( 'beforeend', `<p>fail</p>` );
+      log( 'validate(null, nonNull("number")) — throws: ' + err.message, false );
     }
+
+    // contract() wrapper with arrow function
+    const add = contract( [ "number", "number" ], ( a, b ) => a + b );
+    log( "add(1, 2) = " + add( 1, 2 ), true );
+    try {
+      add( 1, "two" );
+    } catch ( err ) {
+      log( 'add(1, "two") — throws: ' + err.message, false );
+    }
+
+    // named-param schema with optional modifier
+    const greet = contract(
+      { name: "string", title: optional( "string" ) },
+      ( { name, title } ) => ( title ? title + " " + name : name )
+    );
+    log( 'greet({ name: "Alice" }) = ' + greet( { name: "Alice" } ), true );
+    log( 'greet({ name: "Alice", title: "Dr." }) = ' + greet( { name: "Alice", title: "Dr." } ), true );
+
+    // disable entirely
+    config( { enable: false } );
+    validate( null, "number|string" );
+    log( "after config({ enable: false }) — no throw", true );
   </script>
 </body>
 </html>

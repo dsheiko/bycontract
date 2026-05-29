@@ -2,10 +2,24 @@ import scope from "./lib/scope";
 
 export const validate = () => {};
 export const Exception = Error;
-export const typedef = () => {};
+export const typedef = ( nameOrSchema: any, tagDic?: any ): any => {
+  if ( typeof nameOrSchema !== "string" ) {
+    return nameOrSchema;
+  }
+};
 export const config = () => {};
 export const is = {};
 export const validateCombo = () => {};
+
+export { optional, nullable, nonNull, arrayOf, union } from "./lib/modifiers";
+
+export function contract(
+  paramContracts: any,
+  fnOrReturnContract: (( ...args: any[] ) => any) | string,
+  maybeFn?: ( ...args: any[] ) => any
+): ( ...args: any[] ) => any {
+  return ( typeof fnOrReturnContract === "function" ? fnOrReturnContract : maybeFn ) as ( ...args: any[] ) => any;
+}
 
 export function validateContract( strings: string[], ...rest: any[] ): string {
       return "ignore";

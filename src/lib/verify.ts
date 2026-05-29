@@ -2,14 +2,17 @@ import { Indexable } from "./interfaces";
 import Exception from "./Exception";
 import is from "./is";
 
-const scope:Indexable = ( typeof window !== "undefined" ? window : global );
+const scope: Indexable = ( typeof window !== "undefined" ? window : global );
 
-function isOptional( propContract: any ) {
-  return is.string( propContract ) && propContract.endsWith( "=" );
+export const customTypes: any = {};
+
+// --- Utility helpers (used in error messages) ---
+
+function getType( val: any ): string {
+  const basicType = Object.keys( is ).find( aType => is[ aType ]( val ) );
+  return basicType || typeof val;
 }
-/**
- * Translate contracts into string when built-in object
- */
+
 function stringify( val: any ): string {
   if ( typeof val === "object" && "constructor" in val && val.constructor.name ) {
     return `instance of ${ val.constructor.name }`;
@@ -20,405 +23,333 @@ function stringify( val: any ): string {
   return getType( val );
 }
 
-function getType( val: any ): string {
-  const basicType = Object.keys( is ).find( aType => is[ aType ]( val ) );
-  return basicType || typeof val;
-}
-
-function isValid( val:any, contract:any, exceptions: string[] = [] ): boolean {
-  try {
-    verify( val, contract );
-    return true;
-  } catch ( ex ) {
-    if ( !( ex instanceof Exception ) ) {
-      throw ex;
-    }
-    exceptions.push( ex.message );
-    return false;
-  }
-}
-
-export const customTypes: any = {};
-
-export default function verify( val:any, contract:any, propPath: string = "" ): void {
-  const lib = new Validate( val, contract, propPath );
-  lib.validate();
-}
-
 function normalizeProp( prop: string, propPath: string ): string {
   return propPath ? propPath + "." + prop : prop;
 }
 
-class Validate {
+// --- Compiled validator type ---
+// A compiled validator throws Exception on failure, returns void on success.
 
- constructor( private val:any, private contract:any, private propPath: string = "" ) {
- }
+type CompiledValidator = ( val: any ) => void;
 
- validate() {
+// --- Caches ---
 
-    if ( this.assertAny() ) {
-      return;
-    }
+// String contract → compiled validator (populated on first use, reused forever)
+const stringContractCache = new Map<string, CompiledValidator>();
 
-    if ( this.assertObject() ) {
-      return;
-    }
+// Object schema → pre-computed list of {prop, validator, isOptional}
+// WeakMap so schemas that go out of scope are GC'd
+interface SchemaEntry {
+  prop: string;
+  isNestedSchema: boolean;
+  schema?: object;
+  validator?: CompiledValidator;
+  isOptional: boolean;
+}
+const objectSchemaCache = new WeakMap<object, SchemaEntry[]>();
 
-    // Case: byContract( val, MyClass );
-    // NOTE: some user agents e.g. PhantomJS consider global inerfaces (Node, Event,...) as object
-    if ( this.assertInterface() ) {
-      return;
-    }
+// --- String contract compilation ---
 
-    if ( !is.string( this.contract ) ) {
-      throw this.newException(
-       "EINVALIDCONTRACT",
-       "invalid parameters. Contract must be a string or a constructor function"
-     );
+export function compileStringContract( contract: string ): CompiledValidator {
+  const cached = stringContractCache.get( contract );
+  if ( cached !== undefined ) return cached;
 
-    }
-    // Case: byContract( val, "number=" ); - optional parameter
-    if ( this.assertOptional() ) {
-      return;
-    }
+  const validator = buildStringValidator( contract );
+  stringContractCache.set( contract, validator );
+  return validator;
+}
 
-    if ( this.assertBasicType() ) {
-      return;
-    }
+function buildStringValidator( contract: string ): CompiledValidator {
 
-    // Case: byContract( val, "?number" );
-    if ( this.assertNullable() ) {
-      return;
-    }
-
-    // Case: byContract( val, "number|boolean" );
-    if ( this.assertUnion() ) {
-      return true;
-    }
-
-    // Case: byContract( val, "number[]" );
-    if ( this.assertStrictArrayJson() ) {
-      return true;
-    }
-
-    // Case: byContract( val, "Array.<string>" );
-    if ( this.assertStrictArray() ) {
-      return;
-    }
-
-    // Case: byContract( val, "Object.<string, string>" );
-    if ( this.assertStrictObject() ) {
-      return;
-    }
-    // Case: byContract( val, "CustomType" );
-    if ( this.assertCustom() ) {
-      return;
-    }
-
-    if ( !this.contract.match( /^[a-zA-Z0-9\._]+$/ ) ) {
-      throw this.newException(
-        "EINVALIDCONTRACT",
-        `invalid contract ${ JSON.stringify( this.contract ) }`
-      );
-    }
-
-    if ( this.assertGlobal() ) {
-      return;
-    }
-    throw this.newException(
-      "EINVALIDCONTRACT",
-      `invalid contract ${ JSON.stringify( this.contract ) }`
-    );
+  // Any type — always passes
+  if ( contract === "*" ) {
+    return () => {};
   }
 
-  /**
-   * Case: byContract( val, "CustomType" );
-   * @returns boolean is resolved
-   */
-  assertCustom(): boolean {
-
-    if ( !( this.contract in customTypes ) ) {
-      return false;
-    }
-    try {
-      verify( this.val, customTypes[ this.contract ] );
-    } catch ( err )  {
-      throw this.newException(
-        "EINVALIDTYPE",
-        `type ${ this.contract }: ${ err.message }` );
-    }
-    return true;
-
+  // Optional (= suffix) — falsy value passes; otherwise validate the inner type
+  if ( contract.endsWith( "=" ) ) {
+    const inner = compileStringContract( contract.slice( 0, -1 ) );
+    return ( val ) => {
+      if ( !val ) return;
+      inner( val );
+    };
   }
 
-  /**
-   * Case: byContract( val, "Backbone.Model" );
-   * @returns boolean is resolved
-   */
-  assertGlobal(): boolean {
-    if ( !( this.contract in scope ) || typeof scope[ this.contract ] !== "function" ) {
-      return false;
-    }
-    if ( this.val instanceof scope[ this.contract ] ) {
-      return true;
-    }
-    throw this.newException(
-      "EINTERFACEVIOLATION",
-      `expected instance of ${ scope[ this.contract ] } but got ${ stringify( this.val ) }` );
-  }
-
-  assertAny(): boolean {
-    if ( is.string( this.contract ) && this.contract === "*" ) {
-       return true;
-    }
-    return false;
-  }
-
-  assertObject(): boolean {
-
-    // exclude null/undefined, ensure an object
-    if ( !this.contract || typeof this.contract !== "object" ) {
-      return false;
-    }
-
-    if ( !this.val || typeof this.val !== "object" ) {
-      throw this.newException(
-        "EINVALIDTYPE",
-        `expected object literal but got ${ getType( this.val ) }`
-      );
-    }
-
-    Object.keys( this.contract ).forEach(( prop: any, inx: number ) => {
-      const propContract = this.contract[ prop ];
-
-      if ( !( prop in this.val ) && !isOptional( propContract ) ) {
-        throw this.newException(
-          "EMISSINGPROP",
-          `missing required property #` + normalizeProp( prop, this.propPath )
-        );
+  // Non-nullable (! prefix) — rejects null/undefined, then validates base type
+  if ( contract.startsWith( "!" ) ) {
+    const inner = compileStringContract( contract.slice( 1 ) );
+    return ( val ) => {
+      if ( val === null || val === undefined ) {
+        throw new Exception( "EINVALIDTYPE",
+          `expected non-nullable but got ${ getType( val ) }` );
       }
-      verify( this.val[ prop ], propContract, normalizeProp( prop, this.propPath ) );
-    });
-
-    return true;
+      inner( val );
+    };
   }
 
-
-
-  /**
-   * Case: byContract( val, MyClass );
-   * @returns boolean is resolved
-   */
-  assertInterface(): boolean {
-     if ( !is.function( this.contract ) && typeof this.contract !== "object" ) {
-       return false;
-     }
-
-    if ( !( this.val instanceof this.contract ) ) {
-     throw this.newException(
-      "EINTERFACEVIOLATION",
-      `expected instance of ${ stringify( this.contract ) } but got ${ stringify( this.val ) }` );
-    }
-    return true;
-  }
-  /**
-   * Case: byContract( val, "number=" ); - optional parameter
-   * @returns boolean is resolved
-   */
-  assertOptional(): boolean {
-     // Case: byContract( val, "number=" ); - optional parameter
-     if ( this.contract.match( /=$/ ) ) {
-       if ( !this.val ) {
-         return true;
-       }
-       this.contract = this.contract.substr( 0, this.contract.length - 1 );
-     }
-     return false;
+  // Nullable (? prefix) — null passes; otherwise validates base type
+  if ( contract.startsWith( "?" ) ) {
+    const vtype = contract.slice( 1 ).toLowerCase();
+    const test = is[ vtype ];
+    // Defer the is-lookup failure to runtime so that null values always pass,
+    // matching original behaviour for contracts like "?#CustomType".
+    return ( val ) => {
+      if ( is[ "null" ]( val ) ) return;
+      if ( typeof test === "undefined" ) {
+        throw new Exception( "EINVALIDCONTRACT",
+          `invalid contract ${ JSON.stringify( vtype ) }` );
+      }
+      if ( !test( val ) ) {
+        throw new Exception( "EINVALIDTYPE",
+          `expected ${ contract } but got ${ getType( val ) }` );
+      }
+    };
   }
 
-  /**
-   * @returns boolean is resolved
-   */
-  assertBasicType(): boolean {
-    const vtype = this.contract.toLowerCase(),
-      test = is[ vtype ];
-     // in the list of basic type validation
-     if ( typeof test === "undefined" ) {
-       return false;
-     }
-     if ( !test( this.val ) ) {
-       throw this.newException(
-        "EINVALIDTYPE",
-        `expected ${ vtype } but got ${ getType( this.val ) }` );
-     }
-     return true;
-  }
-
-  /**
-   * Case: byContract( val, "?number" );
-   * @returns boolean is resolved
-   */
-  assertNullable(): boolean {
-
-    if ( !this.contract.startsWith( "?" ) ) {
-      return false;
-    }
-
-    const vtype = this.contract.replace( /^\?/, "" ).toLowerCase(),
-          test = is[ vtype ];
-
-    if ( is[ "null" ]( this.val ) ) {
-       return true;
-    }
-
-    // in the list of basic type validation
-    if ( typeof test === "undefined" ) {
-      throw this.newException(
-        "EINVALIDCONTRACT",
-        `invalid contract ${ JSON.stringify( vtype ) }`
-    );
-    }
-
-    if ( !test( this.val ) ) {
-      throw this.newException(
-       "EINVALIDTYPE",
-       `expected ${ this.contract } but got ${ getType( this.val ) }` );
-    }
-    return true;
-  }
-
-  /**
-   * Case: byContract( val, "number|boolean" );
-   * @returns boolean is resolved
-   */
-  assertUnion(): boolean {
-    if ( !this.contract.includes( "|" ) ) {
-      return false;
-    }
-    let exceptions: string[] = [];
-    if ( !this.contract.split( "|" ).some(( contract: any ) => {
-      return isValid( this.val, contract, exceptions );
-
-
-    }) ) {
-      const tdesc = ( is.array( this.val ) || is.object( this.val ) )
-       ? "failed on each: " + exceptions.join( ", " ) : "got " + getType( this.val );
-      throw this.newException(
-        "EINVALIDTYPE",
-        `expected ${ this.contract } but ${ tdesc }` );
-    }
-    return true;
-  }
-
-  /**
-   * Case: byContract( val, "string[]" );
-   * @returns boolean is resolved
-   */
-  assertStrictArrayJson(): boolean {
-    if ( !this.contract.endsWith( "[]" ) ) {
-      return false;
-    }
-    if ( !is.array( this.val ) ) {
-      this.contract = "array";
-      return this.assertBasicType();
-    }
-    const contract = this.contract.replace( /\[\]$/, "" );
-    let elInx = 0;
-    if ( contract === "*" ) {
-      this.contract = "array";
-      return this.assertBasicType();
-    }
-    try {
-      is.array( this.val ) && this.val.forEach(( v: any ) => {
-       verify( v, contract );
-       elInx++;
+  // Union (| separator) — accepts any listed type
+  if ( contract.includes( "|" ) ) {
+    const subValidators = contract.split( "|" ).map( c => compileStringContract( c ) );
+    return ( val ) => {
+      const exceptions: string[] = [];
+      const ok = subValidators.some( v => {
+        try { v( val ); return true; }
+        catch ( ex ) {
+          if ( ex instanceof Exception ) exceptions.push( ex.message );
+          else throw ex;
+          return false;
+        }
       });
-    } catch ( err )  {
-      throw this.newException(
-        "EINVALIDTYPE",
-        `array element ${ elInx }: ${ err.message }` );
-    }
-    return true;
+      if ( !ok ) {
+        const tdesc = ( is.array( val ) || is.object( val ) )
+          ? "failed on each: " + exceptions.join( ", " )
+          : "got " + getType( val );
+        throw new Exception( "EINVALIDTYPE", `expected ${ contract } but ${ tdesc }` );
+      }
+    };
   }
 
-  /**
-   * Case: byContract( val, "Array.<string>" );
-   * @returns boolean is resolved
-   */
-  assertStrictArray(): boolean {
-    if ( !this.contract.startsWith( "Array.<" ) ) {
-      return false;
+  // Typed array shorthand ([] suffix) — e.g. "string[]"
+  if ( contract.endsWith( "[]" ) ) {
+    const elType = contract.slice( 0, -2 );
+    if ( elType === "*" ) {
+      return ( val ) => {
+        if ( !is.array( val ) ) {
+          throw new Exception( "EINVALIDTYPE", `expected array but got ${ getType( val ) }` );
+        }
+      };
     }
-    if ( !is.array( this.val ) ) {
-      this.contract = "array";
-      return this.assertBasicType();
-    }
-    let elInx = 0;
-    const match = this.contract.match( /Array\.<(.+)>/i );
+    const elValidator = compileStringContract( elType );
+    return ( val ) => {
+      if ( !is.array( val ) ) {
+        throw new Exception( "EINVALIDTYPE", `expected array but got ${ getType( val ) }` );
+      }
+      let i = 0;
+      try {
+        ( val as any[] ).forEach( v => { elValidator( v ); i++; });
+      } catch ( err ) {
+        throw new Exception( "EINVALIDTYPE", `array element ${ i }: ${ err.message }` );
+      }
+    };
+  }
+
+  // Strict array — "Array.<type>"
+  if ( contract.startsWith( "Array.<" ) ) {
+    const match = contract.match( /Array\.<(.+)>/i );
     if ( !match ) {
-      throw this.newException(
-        "EINVALIDCONTRACT",
-        `invalid contract ${ stringify( this.contract ) }`
-      );
+      return () => { throw new Exception( "EINVALIDCONTRACT",
+        `invalid contract ${ JSON.stringify( contract ) }` ); };
     }
     if ( match[ 1 ] === "*" ) {
-      this.contract = "array";
-      return this.assertBasicType();
+      return ( val ) => {
+        if ( !is.array( val ) ) {
+          throw new Exception( "EINVALIDTYPE", `expected array but got ${ getType( val ) }` );
+        }
+      };
     }
-    try {
-
-      is.array( this.val ) && this.val.forEach(( v: any ) => {
-       verify( v, match[ 1 ] );
-       elInx++;
-      });
-    } catch ( err )  {
-      throw this.newException(
-        "EINVALIDTYPE",
-        `array element ${ elInx }: ${ err.message }` );
-    }
-    return true;
+    const elValidator = compileStringContract( match[ 1 ] );
+    return ( val ) => {
+      if ( !is.array( val ) ) {
+        throw new Exception( "EINVALIDTYPE", `expected array but got ${ getType( val ) }` );
+      }
+      let i = 0;
+      try {
+        ( val as any[] ).forEach( v => { elValidator( v ); i++; });
+      } catch ( err ) {
+        throw new Exception( "EINVALIDTYPE", `array element ${ i }: ${ err.message }` );
+      }
+    };
   }
 
-  /**
-   * Case: byContract( val, "Object.<string, string>" );
-   * @returns boolean is resolved
-   */
-  assertStrictObject(): boolean {
-    if ( this.contract.indexOf( "Object.<" ) !== 0 ) {
-       return false;
-    }
-    if ( !is.object( this.val ) ) {
-      this.contract = "object";
-      return this.assertBasicType();
-    }
-    let prop = null;
-    const match = this.contract.match( /Object\.<(.+),\s*(.+)>/i );
+  // Strict object — "Object.<keyType, valueType>"
+  if ( contract.startsWith( "Object.<" ) ) {
+    const match = contract.match( /Object\.<(.+),\s*(.+)>/i );
     if ( !match ) {
-       throw this.newException(
-        "EINVALIDCONTRACT",
-        `invalid contract ${ stringify( this.contract ) }`
-      );
+      return () => { throw new Exception( "EINVALIDCONTRACT",
+        `invalid contract ${ JSON.stringify( contract ) }` ); };
     }
     if ( match[ 2 ] === "*" ) {
-      this.contract = "object";
-      return this.assertBasicType();
+      return ( val ) => {
+        if ( !is.object( val ) ) {
+          throw new Exception( "EINVALIDTYPE", `expected object but got ${ getType( val ) }` );
+        }
+      };
     }
+    const valValidator = compileStringContract( match[ 2 ] );
+    return ( val ) => {
+      if ( !is.object( val ) ) {
+        throw new Exception( "EINVALIDTYPE", `expected object but got ${ getType( val ) }` );
+      }
+      let prop: string | null = null;
+      try {
+        Object.keys( val ).forEach( key => {
+          prop = key;
+          valValidator( val[ key ] );
+        });
+      } catch ( err ) {
+        throw new Exception( "EINVALIDTYPE", `object property ${ prop }: ${ err.message }` );
+      }
+    };
+  }
+
+  // Basic type (direct is.xxx lookup — most common case)
+  const vtype = contract.toLowerCase();
+  const test = is[ vtype ];
+  if ( typeof test !== "undefined" ) {
+    return ( val ) => {
+      if ( !test( val ) ) {
+        throw new Exception( "EINVALIDTYPE", `expected ${ vtype } but got ${ getType( val ) }` );
+      }
+    };
+  }
+
+  // Fallback: custom type registry or global constructor.
+  // This validator does a FRESH lookup on every call so that typedef() registered after
+  // the first compile is still found, and global interfaces added later still work.
+  const isValidIdentifier = /^[a-zA-Z0-9\._]+$/.test( contract );
+  return ( val ) => {
+    // Custom type registered via typedef()
+    if ( contract in customTypes ) {
+      try {
+        verify( val, customTypes[ contract ] );
+      } catch ( err ) {
+        if ( !( err instanceof Exception ) ) throw err;
+        throw new Exception( "EINVALIDTYPE", `type ${ contract }: ${ err.message }` );
+      }
+      return;
+    }
+    // Global constructor/interface (Date, Event, HTMLElement, …)
+    if ( isValidIdentifier && contract in scope && typeof scope[ contract ] === "function" ) {
+      if ( !( val instanceof scope[ contract ] ) ) {
+        throw new Exception( "EINTERFACEVIOLATION",
+          `expected instance of ${ scope[ contract ] } but got ${ stringify( val ) }` );
+      }
+      return;
+    }
+    throw new Exception( "EINVALIDCONTRACT",
+      `unknown type ${ JSON.stringify( contract ) } — not a built-in, registered typedef, or global constructor` );
+  };
+}
+
+// --- Object schema compilation ---
+
+function getSchemaEntries( schema: object ): SchemaEntry[] {
+  const cached = objectSchemaCache.get( schema );
+  if ( cached !== undefined ) return cached;
+
+  const entries: SchemaEntry[] = Object.keys( schema ).map( prop => {
+    const propContract = ( schema as any )[ prop ];
+    const isOptional = typeof propContract === "string" && propContract.endsWith( "=" );
+
+    if ( propContract !== null && typeof propContract === "object" ) {
+      return { prop, isNestedSchema: true, schema: propContract, isOptional: false };
+    }
+    return {
+      prop,
+      isNestedSchema: false,
+      validator: typeof propContract === "string"
+        ? compileStringContract( propContract )
+        : ( val: any ) => {
+            if ( !( val instanceof propContract ) ) {
+              throw new Exception( "EINTERFACEVIOLATION",
+                `expected instance of ${ stringify( propContract ) } but got ${ stringify( val ) }` );
+            }
+          },
+      isOptional
+    };
+  });
+
+  objectSchemaCache.set( schema, entries );
+  return entries;
+}
+
+function verifyObject( val: any, schema: object, propPath: string ): void {
+  if ( !val || typeof val !== "object" ) {
+    const pref = propPath ? `property #${ propPath } ` : "";
+    throw new Exception( "EINVALIDTYPE",
+      `${ pref }expected a plain object but got ${ getType( val ) }` );
+  }
+
+  for ( const entry of getSchemaEntries( schema ) ) {
+    const fullPath = normalizeProp( entry.prop, propPath );
+
+    if ( !( entry.prop in val ) ) {
+      if ( !entry.isOptional ) {
+        throw new Exception( "EMISSINGPROP",
+          `missing required property #${ fullPath }` );
+      }
+      continue;
+    }
+
+    if ( entry.isNestedSchema ) {
+      verifyObject( val[ entry.prop ], entry.schema!, fullPath );
+    } else {
+      try {
+        entry.validator!( val[ entry.prop ] );
+      } catch ( err ) {
+        if ( !( err instanceof Exception ) ) throw err;
+        throw new Exception( err.code, `property #${ fullPath } ${ err.message }` );
+      }
+    }
+  }
+}
+
+// --- Main entry point ---
+
+export default function verify( val: any, contract: any, propPath: string = "" ): void {
+
+  // Any type — fast path
+  if ( contract === "*" ) return;
+
+  // Object schema — validate shape
+  if ( contract !== null && typeof contract === "object" ) {
+    verifyObject( val, contract, propPath );
+    return;
+  }
+
+  // Constructor/class — instanceof check
+  if ( typeof contract === "function" ) {
+    if ( !( val instanceof contract ) ) {
+      throw new Exception( "EINTERFACEVIOLATION",
+        `expected instance of ${ stringify( contract ) } but got ${ stringify( val ) }` );
+    }
+    return;
+  }
+
+  // String contract — compile once, cache, call
+  if ( typeof contract === "string" ) {
     try {
-      is.object( this.val ) && Object.keys( this.val ).forEach(( key ) => {
-        prop = key;
-        verify( this.val[ key ], match[ 2 ] );
-      });
-    } catch ( err )  {
-      throw this.newException(
-        "EINVALIDTYPE",
-        `object property ${ prop }: ${ err.message }` );
+      compileStringContract( contract )( val );
+    } catch ( err ) {
+      if ( !( err instanceof Exception ) ) throw err;
+      // Re-throw with property path prefix when called from within object validation
+      if ( propPath ) {
+        throw new Exception( err.code, `property #${ propPath } ${ err.message }` );
+      }
+      throw err;
     }
-    return true;
-
+    return;
   }
 
-  newException( code: string, msg: string ) {
-    const pref = this.propPath ? `property #${ this.propPath } ` : ``;
-    return new Exception( code, pref + msg );
-  }
+  throw new Exception( "EINVALIDCONTRACT",
+    "contract must be a string, plain object, or constructor function" );
 }

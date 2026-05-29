@@ -3,14 +3,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateJsdoc = exports.validateContract = exports.validateCombo = exports.is = exports.config = exports.typedef = exports.Exception = exports.validate = void 0;
+exports.validateJsdoc = exports.validateContract = exports.contract = exports.validateCombo = exports.is = exports.config = exports.typedef = exports.Exception = exports.validate = void 0;
 var scope_1 = __importDefault(require("./lib/scope"));
 exports.validate = function () { };
 exports.Exception = Error;
-exports.typedef = function () { };
+exports.typedef = function (nameOrSchema, tagDic) {
+    if (typeof nameOrSchema !== "string") {
+        return nameOrSchema;
+    }
+};
 exports.config = function () { };
 exports.is = {};
 exports.validateCombo = function () { };
+var modifiers_1 = require("./lib/modifiers");
+Object.defineProperty(exports, "optional", { enumerable: true, get: function () { return modifiers_1.optional; } });
+Object.defineProperty(exports, "nullable", { enumerable: true, get: function () { return modifiers_1.nullable; } });
+Object.defineProperty(exports, "nonNull", { enumerable: true, get: function () { return modifiers_1.nonNull; } });
+Object.defineProperty(exports, "arrayOf", { enumerable: true, get: function () { return modifiers_1.arrayOf; } });
+Object.defineProperty(exports, "union", { enumerable: true, get: function () { return modifiers_1.union; } });
+function contract(paramContracts, fnOrReturnContract, maybeFn) {
+    return (typeof fnOrReturnContract === "function" ? fnOrReturnContract : maybeFn);
+}
+exports.contract = contract;
 function validateContract(strings) {
     var rest = [];
     for (var _i = 1; _i < arguments.length; _i++) {

@@ -1,550 +1,409 @@
-ByContract 2
+ByContract 3
 ==============
 [![NPM](https://nodei.co/npm/bycontract.png)](https://nodei.co/npm/bycontract/)
 [![Build Status](https://travis-ci.org/dsheiko/bycontract.png)](https://travis-ci.org/dsheiko/bycontract)
-[![Join the chat at https://gitter.im/dsheiko/bycontract](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dsheiko/bycontract?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-`bycontract` – A lightweight runtime type checker for JavaScript and TypeScript, powered by [JSDOC syntax](https://jsdoc.app/tags-type.html). Ensure your functions receive the right arguments with simple, declarative contract definitions. No transpilation needed—just clean, reliable validation.
+Runtime type checking for JavaScript and TypeScript. Declare contracts with JSDoc syntax. No transpilation required, zero production overhead.
 
-# Highlights
+- Named helpers instead of cryptic JSDoc prefixes (`optional()`, `nonNull()`, `nullable()`, …)
+- Works with arrow functions — no `arguments` object required
+- Recursive object validation with property-named errors
+- Contracts compiled once and cached; repeated calls skip all parsing
+- Disable entirely for production or strip with Webpack
 
-- **JSDoc-based validation** – Use familiar JSDoc expressions for defining type contracts.
-- **Comprehensive contract checks** – Validate both function inputs and return values.
-- **Clear, actionable errors** – Get detailed exceptions, inspired by [aproba](https://github.com/iarna/aproba).
-- **Deep object validation** – Support for recursive structure checks.
-- **Interface validation** – Ensure objects conform to expected shapes.
-- **Flexible usage** – Available as a template tag and property decorators.
-- **Production-ready** – Can be disabled or stripped out entirely for optimized builds.
+# Contents
 
-
-# Table of contents
-* [Welcome ByContract](#welcome-bycontract)
-* [Where to use it](#where-to-use-it)
-* [Syntax Overview](#syntax-overview)
+* [Quick start](#quick-start)
+* [Installation](#installation)
+* [Modifier helpers](#modifier-helpers)
+* [contract() wrapper](#contract-wrapper)
 * [Types](#types)
-* [Custom Types](#custom-types)
-* [Custom Validators](#custom-validators)
-* [Production Environment](#production-environment)
+* [Custom types](#custom-types)
+* [Custom validators](#custom-validators)
+* [Exceptions](#exceptions)
+* [Combinations](#combinations)
+* [Production](#production)
 
 
-# Welcome ByContract
+# Quick start
 
-## Main flavor
 ```js
-function pdf( path, w, h, options, callback ) {
-  validate( arguments, [
-    "string",
-    "!number",
-    "!number",
-    PdfOptionsType,
-    "function=" ] );
-}
-```
+import { contract, validate, nonNull, optional, typedef } from "bycontract";
 
-## Template tag flavor
-```js
-function pdf( path, w, h, options, callback ) {
-  validateContract`
-    {string}          ${ path }
-    {!number}         ${ w }
-    {!number}         ${ h }
-    {#PdfOptionsType} ${ options }
-    {function=}       ${ callback }
-    `;
-}
-```
+// Wrap a function — contracts are compiled once at definition time
+const PdfOptionsType = typedef({ scale: "?number" });
 
-## Property decorator flavor
-```js
-class Page {
-  @validateJsdoc(`
-    @param {string}          path
-    @param {!number}         w
-    @param {!number}         h
-    @param {#PdfOptionsType} options
-    @param {function=}       callback
-    @returns {Promise}
-  `)
-  pdf( path, w, h, options, callback ) {
-    return Promise.resolve();
+const pdf = contract(
+  [ "string", nonNull("number"), nonNull("number"), PdfOptionsType, optional("function") ],
+  "Promise",
+  ( path, w, h, options, callback ) => {
+    return generatePdf( path, w, h, options ).then( callback );
   }
+);
+
+pdf( "/tmp/out.pdf", 210, 297, { scale: 2 } );          // ok
+pdf( "/tmp/out.pdf", "210", 297, { scale: 2 } );         // ByContractError: pdf: Argument #1: expected non-nullable but got string
+```
+
+Or validate inline — use the named-param pattern for arrow functions. Property names show up in errors:
+
+```js
+import { validate, nonNull, optional } from "bycontract";
+
+const pdf = ( path, w, h, options, callback ) => {
+  validate( { path, w, h, options, callback }, {
+    path: "string",
+    w: nonNull( "number" ),
+    h: nonNull( "number" ),
+    options: { scale: "?number" },
+    callback: optional( "function" )
+  });
+  // ByContractError: pdf: property #w expected non-nullable but got string
+};
+```
+
+Classic style with `arguments` (non-arrow functions only):
+
+```js
+import { validate } from "bycontract";
+
+function pdf( path, w, h, options, callback ) {
+  validate( arguments, [ "string", "!number", "!number", PdfOptionsType, "function=" ] );
 }
 ```
 
 
-# Where to use it
-
-## Node.js
+# Installation
 
 ```bash
 npm install bycontract
 ```
 
 ```js
+// CommonJS
 const { validate } = require( "bycontract" );
-validate( 1, "number|string" );
-```
 
-## Browser
-
-```js
-<script src="dist/byContract.min.js"></script>
-<script>
-  const { validate } =  byContract;
-  validate( 1, "number|string" );
-</script>
-```
-
-## ES6 Module / Webpack
-
-```bash
-npm install bycontract
-```
-
-```js
-import { validate } from "bycontract";
-validate( 1, "number|string" );
-```
-
-
-# Syntax Overview
-
-## Main flavor
-
-##### Validate arguments
-```js
-validate( arguments, [ "JSDOC-EXPRESSION", "JSDOC-EXPRESSION" ] );  // ok or exception
-```
-
-##### Validate a single value (e.g. return value)
-```js
-validate( value, "JSDOC-EXPRESSION" ); // ok or exception
-
-```
-
-##### Example
-
-```js
+// ES module
 import { validate } from "bycontract";
 
-const PdfOptionsType = {
-  scale: "?number"
-}
-
-/**
- * Example
- * @param {string} path
- * @param {!number} w
- * @param {!number} h
- * @param {PdfOptionsType} options
- * @param {function=} callback
- */
-function pdf( path, w, h, options, callback ) {
-  validate( arguments, [
-    "string",
-    "!number",
-    "!number",
-    PdfOptionsType,
-    "function=" ] );
-  //...
-  const returnValue = Promise.resolve();
-  return validate( returnValue, "Promise" );
-}
-
-pdf( "/tmp/test.pdf", 1, 1, { scale: 1 } );
-
-// Test it
-
-pdf( "/tmp/test.pdf", "1", 1, { scale: 1 } ); // ByContractError: Argument #1: expected non-nullable but got string
-
-```
-
-## Template Tag flavor
-
-
-```js
-validateContract`
-    {JSDOC-EXPRESSION} ${ var1 }
-    {JSDOC-EXPRESSION} ${ var2 }
-`;
+// Browser
+// <script src="dist/byContract.min.js"></script>
+// const { validate } = byContract;
 ```
 
 
-##### Example
-```js
-import { validate, typedef } from "bycontract";
+# Modifier helpers
 
-typedef("#PdfOptionsType", {
-  scale: "number"
+Import named helpers instead of memorising JSDoc prefix/suffix characters:
+
+```js
+import { optional, nullable, nonNull, arrayOf, union } from "bycontract";
+```
+
+| Helper | JSDoc equivalent | Meaning |
+|--------|-----------------|---------|
+| `optional("number")` | `"number="` | Parameter may be omitted |
+| `nullable("number")` | `"?number"` | Value may be `null` |
+| `nonNull("number")` | `"!number"` | Rejects `null` and `undefined` |
+| `arrayOf("string")` | `"string[]"` | Every element must match the type |
+| `union("number","string")` | `"number\|string"` | Accepts any listed type |
+
+Helpers return plain strings, so they compose freely with any contract position:
+
+```js
+validate( { name, age, role }, {
+  name: nonNull( "string" ),
+  age: nonNull( "number" ),
+  role: optional( union( "string", "null" ) )
 });
 
-function pdf( path, w, h, options, callback ) {
-  validateContract`
-    {string}          ${ path }
-    {!number}         ${ w }
-    {!number}         ${ h }
-    {#PdfOptionsType} ${ options }
-    {function=}       ${ callback }
-    `;
-}
+validate( ids, arrayOf( "number" ) );
+validate( scores, arrayOf( nonNull( "number" ) ) ); // rejects [1, null, 3]
 ```
-or you can copy/paste from JSDoc:
+
+
+# contract() wrapper
+
+`contract( paramContracts, fn )` or `contract( paramContracts, returnContract, fn )`.
+
+Works with arrow functions. Contracts are pre-compiled at definition time.
 
 ```js
-function pdf( path, w, h, options, callback ) {
-  validateContract`
-    @param {string}          ${ path }
-    @param {!number}         ${ w }
-    @param {!number}         ${ h }
-    @param {#PdfOptionsType} ${ options }
-    @param {function=}       ${ callback }
-    `;
-}
-```
+import { contract, nonNull, optional } from "bycontract";
 
+// Positional array contracts
+const add = contract( [ "number", "number" ], ( a, b ) => a + b );
+add( 1, 2 );        // 3
+add( 1, "two" );    // ByContractError: add: Argument #1: expected number but got string
 
-## Property Decorator flavor
+// With return-type validation
+const parseId = contract( [ "string" ], "number", str => parseInt( str, 10 ) );
 
-```js
-@validateJsdoc`
-    @param {JSDOC-EXPRESSION} param1
-    @param {JSDOC-EXPRESSION} param2
-`;
-```
-
-##### Example
-```js
-import { validate, typedef } from "bycontract";
-
-typedef("#PdfOptionsType", {
-  scale: "number"
-});
-
-class Page {
-  @validateJsdoc(`
-    @param {string}          path
-    @param {!number}         w
-    @param {!number}         h
-    @param {#PdfOptionsType} options
-    @param {function=}       callback
-    @returns {Promise}
-  `)
-  pdf( path, w, h, options, callback ) {
-    return Promise.resolve();
-  }
-}
-```
-
-```js
-const page = new Page();
-page.pdf( "/tmp/test.pdf", "1", 1, { scale: 1 } );
-// ByContractError:
-// Method: pdf, parameter w: expected non-nullable but got string
-
-```
-
-This solution requires [legacy decorators proposal](https://babeljs.io/docs/en/babel-plugin-proposal-decorators) support. You can get it with following [Babel](https://babeljs.io) configuration
-```json
-{
-  presets: [
-    [ "@babel/preset-env" ]
-  ],
-  plugins: [
-    [ "@babel/plugin-proposal-decorators", { "legacy": true } ]
-  ]
-}
+// Named-param schema — single destructured argument, best error messages
+const render = contract(
+  { path: "string", w: nonNull( "number" ), callback: optional( "function" ) },
+  ( { path, w, callback } ) => { /* … */ }
+);
+render( { path: "/", w: "oops" } );
+// ByContractError: render: property #w expected non-nullable but got string
 ```
 
 
 # Types
 
-## Primitive Types
+## Primitives
 
-You can use one of primitive types: `*`, `array`, `string`, `undefined`, `boolean`, `function`, `nan`, `null`, `number`, `object`, `regexp`
+`*`, `array`, `boolean`, `function`, `nan`, `null`, `number`, `object`, `regexp`, `string`, `undefined`
+
 ```js
-validate( true, "boolean" );
-// or
-validate( true, "Boolean" );
+validate( true, "boolean" );   // ok
+validate( true, "Boolean" );   // ok — case-insensitive
+validate( null, "boolean" );   // ByContractError: expected boolean but got null
 ```
 
-```js
-validate( null, "boolean" ); // ByContractError: expected boolean but got null
-
-const fn = () => validate( arguments, [ "boolean", "*" ]);
-fn( null, "any" ); // ByContractError: Argument #0: expected boolean but got null
-
-```
-
-## Union Types
+## Union
 
 ```js
-validate( 100, "string|number|boolean" ); // ok
-validate( "foo", "string|number|boolean" ); // ok
-validate( true, "string|number|boolean" ); // ok
+validate( 100, "string|number|boolean" );  // ok
 validate( [], "string|number|boolean" );
 // ByContractError: expected string|number|boolean but failed on each:
 // expected string but got array, expected number but got array, expected boolean but got array
 ```
 
-## Optional Parameters
+## Optional
+
 ```js
 function foo( bar, baz ) {
   validate( arguments, [ "number=", "string=" ] );
 }
-foo(); // ok
-foo( 100 ); // ok
-foo( 100, "baz" ); // ok
-foo( 100, 100 ); // ByContractError: Argument #1: expected string but got number
-foo( "bar", "baz" ); // ByContractError: Argument #0: expected number but got string
+foo();              // ok
+foo( 100 );         // ok
+foo( 100, "baz" );  // ok
+foo( 100, 100 );    // ByContractError: Argument #1: expected string but got number
 ```
 
-## Array Expression
+## Nullable
 
 ```js
-validate( [ 1, 1 ], "Array.<number>" ); // ok
-validate( [ 1, "1" ], "Array.<number>" );
-// ByContractError: array element 1: expected number but got string
-// or
-validate( [ 1, 1 ], "number[]" ); // ok
-validate( [ 1, "1" ], "number[]" );
-// ByContractError: array element 1: expected number but got string
-
-```
-
-## Object Expression
-```js
-validate( { foo: "foo", bar: "bar" }, "Object.<string, string>" ); // ok
-validate( { foo: "foo", bar: 100 }, "Object.<string, string>" );
-// ByContractError: object property bar: expected string but got number
-```
-
-## Structure
-```js
-validate({
-  foo: "foo",
-  bar: 10
-}, {
-  foo: "string",
-  bar: "number"
-}); // ok
-
-validate({
-  foo: "foo",
-  bar: {
-    quiz: [10]
-  }
-}, {
-  foo: "string",
-  bar: {
-    quiz: "number[]"
-  }
-}); // ok
-
-validate({
-  foo: "foo",
-  bar: 10
-}, {
-  foo: "string",
-  bar: "number"
-}); // ByContractError:  property #bar expected number but got null
-```
-
-
-## Interface validation
-
-You can validate if a supplied value is an instance of a declared interface:
-
-```js
-class MyClass {}
-const instance = new MyClass();
-
-validate( instance, MyClass ); // ok
-```
-
-```js
-class MyClass {}
-class Bar {}
-const instance = new MyClass();
-
-validate( instance, Bar );
-// ByContractError: expected instance of Bar but got instance of MyClass
-```
-
-When the interface is globally available you can set contract as a string:
-
-```js
-const instance = new Date();
-validate( instance, "Date" ); // ok
-
-//..
-validate( node, "HTMLElement" ); // ok
-//..
-validate( ev, "Event" ); // ok
-```
-
-Globally available interfaces can also be used in Array/Object expressions:
-
-```js
-validate( [ new Date(), new Date(), new Date() ], "Array.<Date>" ); // ok
-```
-
-
-## Nullable Type
-
-```js
-validate( 100, "?number" ); // ok
+validate( 100, "?number" );  // ok
 validate( null, "?number" ); // ok
 ```
 
-
-# Validation Exceptions
-
-```js
-import { validate, Exception } from "bycontract";
-try {
-  validate( 1, "NaN" );
-} catch( err ) {
-  console.log( err instanceof Error ); // true
-  console.log( err instanceof TypeError ); // true
-  console.log( err instanceof Exception ); // true
-  console.log( err.name ); // ByContractError
-  console.log( err.message ); // expected nan but got number
-}
-```
-
-# Combinations
-
-Sometimes we allow function to accept different sequences of types.
-Let’s take an [example](https://github.com/npm/cli/blob/v6.9.0/lib/fetch-package-metadata.js):
+## Non-nullable
 
 ```js
-function andLogAndFinish( spec, tracker, done ) {
-  validate( "SOF|SZF|OOF|OZF", [ spec, tracker, done ] )
-  //...
-}
-
+validate( 42, "!number" );   // ok
+validate( null, "!number" ); // ByContractError: expected non-nullable but got null
 ```
-Where the following sequences of types valid:
-- string, object, function
-- string, null, function
-- object, object, function
-- object, null, function
 
+## Typed arrays
 
 ```js
-import { validateCombo } from "bycontract";
+validate( [ 1, 2 ], "number[]" );          // ok
+validate( [ 1, "x" ], "number[]" );        // ByContractError: array element 1: expected number but got string
 
-const CASE1 = [ "string", TRACKER_OPTIONS, "function" ],
-      CASE2 = [ "string", null, "function" ],
-      CASE3 = [ SPEC_OPTIONS, TRACKER_OPTIONS, "function" ],
-      CASE4 = [ SPEC_OPTIONS, null, "function" ];
-
-validateCombo( arguments, [ CASE1, CASE2, CASE3, CASE4 ] );
+validate( [ 1, 2 ], "Array.<number>" );    // ok — JSDoc syntax
 ```
 
-Function `validateCombo` throws exception when none of the cases is valid
+## Typed objects
 
-# Custom Types
+```js
+validate( { a: "foo", b: "bar" }, "Object.<string, string>" );  // ok
+validate( { a: "foo", b: 100 }, "Object.<string, string>" );
+// ByContractError: object property b: expected string but got number
+```
 
-Pretty much like with [JSDoc @typedef](https://jsdoc.app/tags-typedef.html) one can declare a custom type and use it as a contract.
+## Object schema
 
-### Validating against a Union Type
-Here we define a union type for values that can contain either numbers or strings that represent numbers.
+```js
+validate( { foo: "foo", bar: 10 }, { foo: "string", bar: "number" } );  // ok
+
+validate( { foo: "foo", bar: { quiz: [10] } }, {
+  foo: "string",
+  bar: { quiz: "number[]" }
+});  // ok — nested schemas work recursively
+```
+
+## Class / interface
+
+```js
+class MyClass {}
+validate( new MyClass(), MyClass );  // ok
+validate( new MyClass(), Bar );      // ByContractError: expected instance of Bar but got instance of MyClass
+
+// Global interfaces by string
+validate( new Date(), "Date" );         // ok
+validate( node, "HTMLElement" );        // ok
+validate( [ new Date() ], "Array.<Date>" ); // ok
+```
+
+
+# Custom types
+
+## Value-based (recommended)
+
+`typedef( schema )` returns the schema directly — no global registry, no string indirection:
+
+```js
+import { validate, typedef, contract } from "bycontract";
+
+const HeroType = typedef({
+  hasSuperhumanStrength: "boolean",
+  hasWaterbreathing: "boolean"
+});
+
+validate( superman, HeroType );
+
+const createHero = contract( [ HeroType ], hero => hero );
+```
+
+## String registry (legacy)
+
 ```js
 import { validate, typedef } from "bycontract";
-typedef( "NumberLike", "number|string" );
-validate( 10, "NumberLike" ); // OK
-validate( null, "NumberLike" ); // ByContractError: expected number|string but got null
-```
 
-### Validating against a Complex Type
-This example defines a type `Hero` that represents an object/namespace required to have properties `hasSuperhumanStrength` and `hasWaterbreathing` both of boolean type.
-```js
-import { validate, typedef } from "bycontract";
 typedef( "#Hero", {
   hasSuperhumanStrength: "boolean",
   hasWaterbreathing: "boolean"
 });
-var superman = {
-  hasSuperhumanStrength: true,
-  hasWaterbreathing: false
-};
-validate( superman, "#Hero" ); // OK
+
+validate( superman, "#Hero" );  // ok
+
+validate( { hasSuperhumanStrength: 42, hasWaterbreathing: null }, "#Hero" );
+// ByContractError: property #hasSuperhumanStrength expected boolean but got number
+
+validate( { hasWaterbreathing: true }, "#Hero" );
+// ByContractError: missing required property #hasSuperhumanStrength
 ```
 
-When any of properties violates the specified contract an exception thrown
+Union typedef:
+
 ```js
-var superman = {
-  hasSuperhumanStrength: 42,
-  hasWaterbreathing: null
-};
-validate( superman, "#Hero" ); // ByContractError:  property #hasSuperhumanStrength expected boolean but got number
+typedef( "NumberLike", "number|string" );
+validate( 10, "NumberLike" );    // ok
+validate( null, "NumberLike" );  // ByContractError: expected number|string but got null
 ```
 
-If value misses a property of the complex type an exception thrown
-```js
-var auqaman = {
-  hasWaterbreathing: true
-};
-validate( superman, "#Hero" ); // ByContractError: missing required property #hasSuperhumanStrength
-```
 
-## Custom Validators
+# Custom validators
 
-Basic type validators exposed exported as `is` object. So you can extend it:
+Extend the `is` object with custom predicates:
 
 ```js
 import { validate, is } from "bycontract";
-is.email = function( val ){
-  var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test( val );
-}
-validate( "me@dsheiko.com", "email" ); // ok
-validate( "bla-bla", "email" ); // ByContractError: expected email but got string
+
+is.email = ( val ) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( val );
+
+validate( "me@dsheiko.com", "email" );  // ok
+validate( "not-an-email", "email" );    // ByContractError: expected email but got string
 ```
 
-# Production Environment
 
-You can disable validation logic for production env like
+# Exceptions
+
+Every validation failure throws a `ByContractError` (extends `TypeError`):
+
+```js
+import { validate, Exception } from "bycontract";
+
+try {
+  validate( 1, "NaN" );
+} catch ( err ) {
+  err instanceof Error;      // true
+  err instanceof TypeError;  // true
+  err instanceof Exception;  // true
+  err.name;                  // "ByContractError"
+  err.message;               // "expected nan but got number"
+  err.code;                  // "EINVALIDTYPE"
+}
+```
+
+
+# Combinations
+
+Validate functions that accept several distinct argument signatures:
+
+```js
+import { validateCombo } from "bycontract";
+
+const CASE1 = [ "string", TrackerOptions, "function" ];
+const CASE2 = [ "string", null, "function" ];
+const CASE3 = [ SpecOptions, TrackerOptions, "function" ];
+const CASE4 = [ SpecOptions, null, "function" ];
+
+function andLogAndFinish( spec, tracker, done ) {
+  validateCombo( [ spec, tracker, done ], [ CASE1, CASE2, CASE3, CASE4 ] );
+}
+```
+
+Throws when none of the cases match.
+
+
+# Production
+
+Disable at runtime:
 
 ```js
 import { validate, config } from "bycontract";
+
 if ( process.env.NODE_ENV === "production" ) {
   config({ enable: false });
 }
 ```
-Alternatively you can fully remove the library from the production codebase with Webpack:
 
-#### webpack config
+Or swap the entire module with Webpack (zero-byte production build):
+
 ```js
-const webpack = require( "webpack" ),
-      TerserPlugin = require( "terser-webpack-plugin" );
+// webpack.config.js
+const webpack = require( "webpack" );
+const TerserPlugin = require( "terser-webpack-plugin" );
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
-  ...
   optimization: {
-     minimizer: [
-         new TerserPlugin(),
-         new webpack.NormalModuleReplacementPlugin(
-          /dist\/bycontract\.dev\.js/,
-          ".\/bycontract.prod.js"
-        )
-     ]
+    minimizer: [
+      new TerserPlugin(),
+      new webpack.NormalModuleReplacementPlugin(
+        /dist\/bycontract\.dev\.js/,
+        "./bycontract.prod.js"
+      )
+    ]
   }
 };
 ```
 
-#### building for development
 ```bash
-npx NODE_ENV=development webpack
+NODE_ENV=development npx webpack   # includes validation
+NODE_ENV=production npx webpack    # strips validation entirely
 ```
 
-#### building for production
-```bash
-npx NODE_ENV=production webpack
+
+## Decorator flavor (legacy Babel)
+
+Requires `@babel/plugin-proposal-decorators` with `legacy: true`:
+
+```js
+class Page {
+  @validateJsdoc(`
+    @param {string}    path
+    @param {!number}   w
+    @param {!number}   h
+    @returns {Promise}
+  `)
+  pdf( path, w, h ) {
+    return Promise.resolve();
+  }
+}
+
+new Page().pdf( "/tmp/test.pdf", "not-a-number", 297 );
+// ByContractError: Method: pdf, parameter w: expected non-nullable but got string
+```
+
+```json
+{
+  "plugins": [["@babel/plugin-proposal-decorators", { "legacy": true }]]
+}
 ```
 
 
 [![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
-

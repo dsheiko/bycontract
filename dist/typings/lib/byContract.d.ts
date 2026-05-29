@@ -4,10 +4,15 @@ export interface Options {
 }
 declare function config(options: Options): void;
 /**
- * Document a custom type
- * @param {string} typeName
- * @param {string|Object.<string, *>} tagDic
+ * Register a named custom type (legacy string-registry form):
+ *   typedef("#Hero", { hasSuperhumanStrength: "boolean" });
+ *   validate(val, "#Hero");
+ *
+ * Or return a schema object directly (value-based form, no global side effects):
+ *   const HeroType = typedef({ hasSuperhumanStrength: "boolean" });
+ *   validate(val, HeroType);
  */
+declare function typedef(schema: Record<string, any>): Record<string, any>;
 declare function typedef(typeName: string, tagDic: any): void;
 /**
  * @param {*|*[]} values

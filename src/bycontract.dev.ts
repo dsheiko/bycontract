@@ -9,6 +9,11 @@ export const config = byContract.config;
 export const validateCombo = byContract.validateCombo;
 export const is = byContract.is;
 
+import { optional, nullable, nonNull, arrayOf, union } from "./lib/modifiers";
+import { contract } from "./lib/contract";
+export { optional, nullable, nonNull, arrayOf, union };
+export { contract };
+
 /**
  * Template tag flavor
  * @param {string[]} strings
@@ -79,4 +84,4 @@ export function validateJsdoc( contracts: string ) {
   };
 }
 
-scope.byContract = { ...byContract, validateJsdoc, validateContract };
+scope.byContract = { ...byContract, validateJsdoc, validateContract, contract, optional, nullable, nonNull, arrayOf, union };
