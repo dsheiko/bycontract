@@ -40,7 +40,7 @@ describe( "jsdoc", () => {
     @param {string|number} ${ foo }
     @param {Array.<string>} ${ bar }
 `;
-    expect( fn ).toThrowError( /Argument #0: expected string|number but got null/ );
+    expect( fn ).toThrow( /Argument #0: expected string|number but got null/ );
   });
 
   it ( "throws with invalid jsodc", () => {
@@ -59,7 +59,7 @@ describe( "jsdoc", () => {
     }
 
     expect( () => pdf("/var/log/", 1, 1, { scale: 1 }, () => {} ) )
-      .toThrowError( /invalid JSDOC. Expected syntax/ );
+      .toThrow( /invalid JSDOC. Expected syntax/ );
 
 
   });

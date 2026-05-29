@@ -12,7 +12,7 @@ import { validate } from "../../dist/bycontract.dev";
     });
     it( "throws when validate( {}, \"number|string\" )", () => {
       var fn = () => { validate( {}, "number|string" ); };
-      expect( fn ).toThrowError( /expected number|string but got object/ );
+      expect( fn ).toThrow( /expected number|string but got object/ );
     });
   });
 });

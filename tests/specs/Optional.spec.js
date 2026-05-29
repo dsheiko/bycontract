@@ -12,7 +12,7 @@ describe( "Optional Parameter Validation", () => {
     });
     it( "throws when validate( \"1\", \"number=\" )", () => {
       var fn = () => { validate( "1", "number=" ); };
-      expect( fn ).toThrowError( /expected number but got string/ );
+      expect( fn ).toThrow( /expected number but got string/ );
     });
   });
   describe( "arguments", () => {
@@ -22,7 +22,7 @@ describe( "Optional Parameter Validation", () => {
     });
     it( "throws when invalid type", () => {
       var fn = function() { validate( arguments, [ "number", "function=" ] ); };
-      expect( () => fn( 1, 1 ) ).toThrowError( /Argument #1: expected function but got number/ );
+      expect( () => fn( 1, 1 ) ).toThrow( /Argument #1: expected function but got number/ );
     });
   });
 });

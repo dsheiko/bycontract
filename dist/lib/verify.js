@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.customTypes = void 0;
 var Exception_1 = __importDefault(require("./Exception"));
 var is_1 = __importDefault(require("./is"));
 var scope = (typeof window !== "undefined" ? window : global);

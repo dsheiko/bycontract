@@ -8,11 +8,11 @@ describe( "Array/Object Validation", () => {
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( null, "Array.<number>" ); };
-      expect( fn ).toThrowError( /expected array but got null/ );
+      expect( fn ).toThrow( /expected array but got null/ );
     });
     it( "throws when validate( [ 1, {} ], \"Array.<number>\" )", () => {
       var fn = () => { validate( [ 1, {} ], "Array.<number>" ); };
-      expect( fn ).toThrowError( /array element 1: expected number but got object/ );
+      expect( fn ).toThrow( /array element 1: expected number but got object/ );
     });
   });
 
@@ -23,7 +23,7 @@ describe( "Array/Object Validation", () => {
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( null, "Array.<*>" ); };
-      expect( fn ).toThrowError( /expected array but got null/ );
+      expect( fn ).toThrow( /expected array but got null/ );
     });
   });
 
@@ -34,11 +34,11 @@ describe( "Array/Object Validation", () => {
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( null, "number[]" ); };
-      expect( fn ).toThrowError( /expected array but got null/ );
+      expect( fn ).toThrow( /expected array but got null/ );
     });
     it( "throws when validate( [ 1, {} ], \"number[]\" )", () => {
       var fn = () => { validate( [ 1, {} ], "number[]" ); };
-      expect( fn ).toThrowError( /array element 1: expected number but got object/ );
+      expect( fn ).toThrow( /array element 1: expected number but got object/ );
     });
   });
 
@@ -49,7 +49,7 @@ describe( "Array/Object Validation", () => {
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( null, "*[]" ); };
-      expect( fn ).toThrowError( /expected array but got null/ );
+      expect( fn ).toThrow( /expected array but got null/ );
     });
   });
 
@@ -64,7 +64,7 @@ describe( "Array/Object Validation", () => {
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( [ 1, {} ], "string|number[]" ); };
-      expect( fn ).toThrowError( /array element 1: expected number but got object/ );
+      expect( fn ).toThrow( /array element 1: expected number but got object/ );
     });
   });
 
@@ -79,11 +79,11 @@ describe( "Array/Object Validation", () => {
     });
     it( "doesn't throw when validate( { foo: 1 }, \"Object.<string, string>\" )", () => {
       var fn = () => { validate( { foo: 1 }, "Object.<string, string>" ); };
-      expect( fn ).toThrowError( /object property foo: expected string but got number/ );
+      expect( fn ).toThrow( /object property foo: expected string but got number/ );
     });
     it( "throws when incorrect", () => {
       var fn = () => { validate( null, "Object.<string, string>" ); };
-      expect( fn ).toThrowError( /expected object but got null/ );
+      expect( fn ).toThrow( /expected object but got null/ );
     });
   });
 });

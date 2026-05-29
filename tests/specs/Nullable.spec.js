@@ -12,7 +12,7 @@ describe( "Nullable Type Validation", () => {
     });
     it( "throws when validate( \"1\", \"?number\" )", () => {
       var fn = () => { validate( "1", "?number" ); };
-      expect( fn ).toThrowError( /expected \?number but got string/ );
+      expect( fn ).toThrow( /expected \?number but got string/ );
     });
   });
 });

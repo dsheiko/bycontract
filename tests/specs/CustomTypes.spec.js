@@ -4,11 +4,11 @@ describe( "Custom types", () => {
   describe( "typedef", () => {
     it( "throws when typedef: expected ()", () => {
       var fn = () => { return typedef(); };
-       expect( fn ).toThrowError( /typedef: Argument #0: expected string but got undefined/ );
+       expect( fn ).toThrow( /typedef: Argument #0: expected string but got undefined/ );
     });
     it( "throws when typedef: expected (10)", () => {
       var fn = () => { return typedef( 10 ); };
-       expect( fn ).toThrowError( /typedef: Argument #0: expected string but got number/ );
+       expect( fn ).toThrow( /typedef: Argument #0: expected string but got number/ );
     });
 
 
@@ -33,7 +33,7 @@ describe( "Custom types", () => {
         hasWaterbreathing: false
       },
       fn = () => { return validate( superman, "#Hero" ); };
-      expect( fn ).toThrowError( /property #hasSuperhumanStrength expected boolean but got number/ );
+      expect( fn ).toThrow( /property #hasSuperhumanStrength expected boolean but got number/ );
     });
     it( "throws on incomplete interface implementation", () => {
       typedef( "#Hero", {
@@ -44,7 +44,7 @@ describe( "Custom types", () => {
         hasWaterbreathing: false
       },
       fn = () => { return validate( superman, "#Hero" ); };
-      expect( fn ).toThrowError( /missing required property #hasSuperhumanStrength/ );
+      expect( fn ).toThrow( /missing required property #hasSuperhumanStrength/ );
     });
   });
 
@@ -188,24 +188,24 @@ describe( "with union type", () => {
     it( "doesn't throw on a valid contract (number)", () => {
       typedef( "#NumberLike", "number|string" );
       var fn = () => { return validate( 10, "#NumberLike" ); };
-      expect( fn ).not.toThrowError();
+      expect( fn ).not.toThrow();
 
     });
     it( "doesn't throw on a valid contract (string)", () => {
       typedef( "#NumberLike", "number|string" );
       var fn = () => { return validate( "value", "#NumberLike" ); };
-      expect( fn ).not.toThrowError();
+      expect( fn ).not.toThrow();
     });
     it( "doesn't throw on a# valid contract", () => {
       typedef( "NumberLike", "number|string" );
       var fn = () => { return validate( true, "#NumberLike" ); };
-      expect( fn ).toThrowError( /expected number|string but got boolean/ );
+      expect( fn ).toThrow( /expected number|string but got boolean/ );
     });
 });
 
 describe( "Call context", () => {
   it( "includes given call context to exception message", () => {
     var fn = () => { validate( "string", "number", "FOO" ); };
-    expect( fn ).toThrowError( /FOO:/ );
+    expect( fn ).toThrow( /FOO:/ );
   });
 });
