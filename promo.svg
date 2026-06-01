@@ -1,0 +1,170 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#131820"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#388bfd"/>
+      <stop offset="100%" stop-color="#a371f7"/>
+    </linearGradient>
+    <linearGradient id="winTop" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#1c2128"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#21262d" opacity="0.6"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <rect width="1200" height="400" fill="url(#dots)"/>
+
+  <!-- ── LEFT PANEL ─────────────────────────────── -->
+
+  <text x="60" y="148"
+    font-family="'SF Mono','Fira Code','Courier New',monospace"
+    font-size="62" font-weight="700" fill="#e6edf3" letter-spacing="-2">bycontract</text>
+
+  <!-- Gradient accent line -->
+  <rect x="60" y="160" width="360" height="3" rx="1.5" fill="url(#accent)"/>
+
+  <!-- Version badge -->
+  <rect x="60" y="175" width="42" height="20" rx="10" fill="#1f6feb" opacity="0.85"/>
+  <text x="81" y="189"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="11" fill="#e6edf3" text-anchor="middle" font-weight="600">v3</text>
+
+  <!-- Tagline -->
+  <text x="60" y="225"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="17" fill="#8b949e">Runtime type contracts for JavaScript</text>
+
+  <!-- ── Feature bullets (5 highlights, 22px spacing) ── -->
+
+  <text x="60" y="258" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#3fb950">✓</text>
+  <text x="82" y="258" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#c9d1d9">Human-readable helpers — nonNull(), optional(), union()</text>
+
+  <text x="60" y="280" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#3fb950">✓</text>
+  <text x="82" y="280" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#c9d1d9">Runtime checks, no transpilation needed</text>
+
+  <text x="60" y="302" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#3fb950">✓</text>
+  <text x="82" y="302" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#c9d1d9">Three API styles — contract, validate, decorator</text>
+
+  <text x="60" y="324" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#3fb950">✓</text>
+  <text x="82" y="324" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#c9d1d9">Deep errors with exact property names</text>
+
+  <text x="60" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#3fb950">✓</text>
+  <text x="82" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#c9d1d9">Zero production overhead</text>
+
+  <!-- npm badge (moved to y=362) -->
+  <rect x="60" y="362" width="52" height="22" rx="4" fill="#cc3534"/>
+  <text x="86" y="377" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="700">npm</text>
+  <rect x="112" y="362" width="110" height="22" rx="4" fill="#21262d"/>
+  <text x="167" y="377" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="12" fill="#c9d1d9" text-anchor="middle">bycontract</text>
+
+  <!-- ── RIGHT PANEL: code window ───────────────── -->
+
+  <!-- Window shadow -->
+  <rect x="518" y="36" width="648" height="336" rx="11" fill="#000000" opacity="0.35"/>
+
+  <!-- Window body -->
+  <rect x="514" y="32" width="648" height="336" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Title bar -->
+  <rect x="514" y="32" width="648" height="38" rx="10" fill="url(#winTop)"/>
+  <rect x="514" y="58" width="648" height="12" fill="url(#winTop)"/>
+  <line x1="514" y1="70" x2="1162" y2="70" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle cx="546" cy="51" r="6" fill="#f85149"/>
+  <circle cx="568" cy="51" r="6" fill="#e3b341"/>
+  <circle cx="590" cy="51" r="6" fill="#3fb950"/>
+
+  <!-- Filename tab -->
+  <text x="838" y="55"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="12" fill="#8b949e" text-anchor="middle">example.js</text>
+
+  <!-- ── Code lines (font-size 13.5, ~8.1px/char, start x=542) ── -->
+
+  <!-- y=88: import { validate, nonNull, optional } from "bycontract"; -->
+  <text x="542" y="88" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#ff7b72">import</text>
+  <text x="591" y="88" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> { validate, nonNull, optional } </text>
+  <text x="851" y="88" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#ff7b72">from</text>
+  <text x="884" y="88" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff"> "bycontract"</text>
+  <text x="981" y="88" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">;</text>
+
+  <!-- y=108: (blank) -->
+
+  <!-- y=128: const handler = ({ name, age, role }) => { -->
+  <text x="542" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#ff7b72">const</text>
+  <text x="583" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> </text>
+  <text x="591" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">handler</text>
+  <text x="648" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> = ({ name, age, role }) </text>
+  <text x="843" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#ff7b72">=></text>
+  <text x="860" y="128" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> {</text>
+
+  <!-- y=148:   validate({ name, age, role }, { -->
+  <text x="542" y="148" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">  </text>
+  <text x="558" y="148" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">validate</text>
+  <text x="623" y="148" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">({ name, age, role }, {</text>
+
+  <!-- y=168:     name: nonNull( "string" ), -->
+  <text x="542" y="168" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">    name: </text>
+  <text x="607" y="168" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">nonNull</text>
+  <text x="664" y="168" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">( </text>
+  <text x="680" y="168" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff">"string"</text>
+  <text x="745" y="168" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> ),</text>
+
+  <!-- y=188:     age:  nonNull( "number" ), -->
+  <text x="542" y="188" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">    age:  </text>
+  <text x="607" y="188" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">nonNull</text>
+  <text x="664" y="188" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">( </text>
+  <text x="680" y="188" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff">"number"</text>
+  <text x="745" y="188" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> ),</text>
+
+  <!-- y=208:     role: optional( "string" ) -->
+  <text x="542" y="208" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">    role: </text>
+  <text x="607" y="208" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">optional</text>
+  <text x="672" y="208" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">( </text>
+  <text x="688" y="208" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff">"string"</text>
+  <text x="753" y="208" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> )</text>
+
+  <!-- y=228:   }); -->
+  <text x="542" y="228" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">  });</text>
+
+  <!-- y=248: }; -->
+  <text x="542" y="248" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">};</text>
+
+  <!-- Separator -->
+  <line x1="524" y1="262" x2="1152" y2="262" stroke="#21262d" stroke-width="1"/>
+
+  <!-- y=282: handler({ name: "Alice", age: 30 });  // ✓  ok -->
+  <text x="542" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">handler</text>
+  <text x="599" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">({ name: </text>
+  <text x="672" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff">"Alice"</text>
+  <text x="721" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">, age: </text>
+  <text x="770" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#79c0ff">30</text>
+  <text x="786" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> });  </text>
+  <text x="835" y="282" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#3fb950">// ✓  ok</text>
+
+  <!-- y=302: handler({ name: "Alice", age: null }); -->
+  <text x="542" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#d2a8ff">handler</text>
+  <text x="599" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">({ name: </text>
+  <text x="672" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#a5d6ff">"Alice"</text>
+  <text x="721" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9">, age: </text>
+  <text x="770" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#ff7b72">null</text>
+  <text x="803" y="302" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#c9d1d9"> });</text>
+
+  <!-- y=322: // ✗  property #age: expected non-nullable -->
+  <text x="542" y="322" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#f85149">// ✗  property #age: expected non-nullable</text>
+
+  <!-- y=342: //    but got null -->
+  <text x="542" y="342" font-family="'SF Mono','Fira Code','Courier New',monospace" font-size="13.5" fill="#f85149">//    but got null</text>
+
+  <!-- Outer border glow -->
+  <rect x="514" y="32" width="648" height="336" rx="10"
+    fill="none" stroke="#388bfd" stroke-width="0.5" opacity="0.25"/>
+</svg>

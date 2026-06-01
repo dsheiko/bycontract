@@ -1,22 +1,32 @@
 ByContract 3
 ==============
+
+![bycontract promo](promo.svg)
+
 [![NPM](https://nodei.co/npm/bycontract.png)](https://nodei.co/npm/bycontract/)
-[![Build Status](https://travis-ci.org/dsheiko/bycontract.png)](https://travis-ci.org/dsheiko/bycontract)
 
 Runtime type checking for JavaScript and TypeScript. Declare contracts with JSDoc syntax. No transpilation required, zero production overhead.
 
-- Named helpers instead of cryptic JSDoc prefixes (`optional()`, `nonNull()`, `nullable()`, …)
-- Works with arrow functions — no `arguments` object required
-- Recursive object validation with property-named errors
-- Contracts compiled once and cached; repeated calls skip all parsing
-- Disable entirely for production or strip with Webpack
+## Why ByContract?
+
+TypeScript catches type errors at compile time. ByContract validates values at runtime.
+
+This is useful when dealing with:
+
+- API payloads
+- User input
+- Environment variables
+- Third-party libraries
+- Untyped JavaScript consumers
+
+Contracts can be enabled during development and removed entirely from production builds.
 
 # Contents
 
 * [Quick start](#quick-start)
 * [Installation](#installation)
 * [Modifier helpers](#modifier-helpers)
-* [contract() wrapper](#contract-wrapper)
+* [Function contracts](#function-contracts)
 * [Types](#types)
 * [Custom types](#custom-types)
 * [Custom validators](#custom-validators)
@@ -27,25 +37,41 @@ Runtime type checking for JavaScript and TypeScript. Declare contracts with JSDo
 
 # Quick start
 
-```js
-import { contract, validate, nonNull, optional, typedef } from "bycontract";
+ByContract supports several styles of runtime validation. Most projects will use either `contract()` or `validate()` with named helper functions.
 
-// Wrap a function — contracts are compiled once at definition time
-const PdfOptionsType = typedef({ scale: "?number" });
+## Function contracts (recommended)
+
+Wrap a function with parameter and return-value contracts. Contracts are compiled once and cached at definition time.
+
+```js
+import { contract, nonNull, optional, typedef } from "bycontract";
+
+const PdfOptionsType = typedef({
+  scale: "?number"
+});
 
 const pdf = contract(
-  [ "string", nonNull("number"), nonNull("number"), PdfOptionsType, optional("function") ],
+  [
+    "string",
+    nonNull( "number" ),
+    nonNull( "number" ),
+    PdfOptionsType,
+    optional( "function" )
+  ],
   "Promise",
   ( path, w, h, options, callback ) => {
     return generatePdf( path, w, h, options ).then( callback );
   }
 );
 
-pdf( "/tmp/out.pdf", 210, 297, { scale: 2 } );          // ok
-pdf( "/tmp/out.pdf", "210", 297, { scale: 2 } );         // ByContractError: pdf: Argument #1: expected non-nullable but got string
+pdf( "/tmp/out.pdf", 210, 297, { scale: 2 } );   // ok
+pdf( "/tmp/out.pdf", "210", 297, { scale: 2 } );
+// ByContractError: pdf: Argument #1: expected non-nullable but got string
 ```
 
-Or validate inline — use the named-param pattern for arrow functions. Property names show up in errors:
+## Inline validation
+
+A good fit for arrow functions. Property names are included in validation errors.
 
 ```js
 import { validate, nonNull, optional } from "bycontract";
@@ -58,19 +84,75 @@ const pdf = ( path, w, h, options, callback ) => {
     options: { scale: "?number" },
     callback: optional( "function" )
   });
-  // ByContractError: pdf: property #w expected non-nullable but got string
+
+  // ...
 };
 ```
 
-Classic style with `arguments` (non-arrow functions only):
+## JSDoc syntax
+
+For projects already using [JSDoc-style](https://jsdoc.app/) contracts.
 
 ```js
 import { validate } from "bycontract";
 
 function pdf( path, w, h, options, callback ) {
-  validate( arguments, [ "string", "!number", "!number", PdfOptionsType, "function=" ] );
+  validate(
+    arguments,
+    [ "string", "!number", "!number", PdfOptionsType, "function=" ]
+  );
 }
 ```
+
+## Decorator flavor
+
+Requires Babel decorators in legacy mode.
+
+```js
+import { validateJsdoc } from "bycontract";
+
+class Page {
+  @validateJsdoc(`
+    @param {string} path
+    @param {!number} w
+    @param {!number} h
+    @returns {Promise}
+  `)
+  pdf( path, w, h ) {
+    return Promise.resolve();
+  }
+}
+
+new Page().pdf( "/tmp/test.pdf", "not-a-number", 297 );
+// ByContractError: Method: pdf, parameter w: expected non-nullable but got string
+```
+
+Configuration:
+
+```json
+{
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }]
+  ]
+}
+```
+
+## Template literal flavor
+
+For projects that prefer inline JSDoc-style validation without decorators.
+
+```js
+import { validateContract } from "bycontract";
+
+const path = "/tmp/out.pdf";
+const width = 210;
+
+validateContract`
+  @param {string} ${path}
+  @param {!number} ${width}
+`;
+```
+
 
 
 # Installation
@@ -122,7 +204,7 @@ validate( scores, arrayOf( nonNull( "number" ) ) ); // rejects [1, null, 3]
 ```
 
 
-# contract() wrapper
+# Function contracts
 
 `contract( paramContracts, fn )` or `contract( paramContracts, returnContract, fn )`.
 
@@ -378,32 +460,3 @@ NODE_ENV=production npx webpack    # strips validation entirely
 ```
 
 
-## Decorator flavor (legacy Babel)
-
-Requires `@babel/plugin-proposal-decorators` with `legacy: true`:
-
-```js
-class Page {
-  @validateJsdoc(`
-    @param {string}    path
-    @param {!number}   w
-    @param {!number}   h
-    @returns {Promise}
-  `)
-  pdf( path, w, h ) {
-    return Promise.resolve();
-  }
-}
-
-new Page().pdf( "/tmp/test.pdf", "not-a-number", 297 );
-// ByContractError: Method: pdf, parameter w: expected non-nullable but got string
-```
-
-```json
-{
-  "plugins": [["@babel/plugin-proposal-decorators", { "legacy": true }]]
-}
-```
-
-
-[![Analytics](https://ga-beacon.appspot.com/UA-1150677-13/dsheiko/bycontract)](https://github.com/igrigorik/ga-beacon)
